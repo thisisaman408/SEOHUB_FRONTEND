@@ -1,4 +1,3 @@
-import { PlaceholderLogo } from '@/components/PlaceholderLogo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +20,12 @@ export function GridToolCard({ tool, onCardClick }: GridToolCardProps) {
 		hidden: { opacity: 0, y: 20 },
 		show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOut } },
 	};
+
+	// Fallback placeholder image URL
+	const placeholderUrl = `https://placehold.co/64x64/eee/ccc?text=${tool.name
+		.charAt(0)
+		.toUpperCase()}`;
+
 	return (
 		<motion.div
 			variants={cardVariants}
@@ -28,17 +33,18 @@ export function GridToolCard({ tool, onCardClick }: GridToolCardProps) {
 			onClick={onCardClick}>
 			<Card className="h-full flex flex-col bg-background/50 hover:bg-background hover:shadow-lg transition-all duration-300">
 				<CardHeader>
-					<PlaceholderLogo name={tool.name} />
+					<div className="w-16 h-16 mb-4">
+						<img
+							src={tool.logoUrl || placeholderUrl}
+							alt={`${tool.name} logo`}
+							className="w-full h-full object-cover rounded-lg border"
+							onError={(e) => {
+								e.currentTarget.src = placeholderUrl;
+							}}
+						/>
+					</div>
 					<div className="flex justify-between items-start">
 						<CardTitle>{tool.name}</CardTitle>
-						{/* Rating is not in the new Tool type, so it's removed for now.
-						    You could add it back to your backend model if needed. */}
-						{/* <div className="flex items-center gap-1 text-yellow-500">
-							<Star className="w-4 h-4 fill-current" />
-							<span className="text-sm font-bold text-foreground">
-								{tool.rating}
-							</span>
-						</div> */}
 					</div>
 					<CardDescription>{tool.tagline}</CardDescription>
 				</CardHeader>

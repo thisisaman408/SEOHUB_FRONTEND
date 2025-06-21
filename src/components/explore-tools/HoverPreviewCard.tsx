@@ -1,4 +1,3 @@
-import { PlaceholderLogo } from '@/components/PlaceholderLogo';
 import { Button } from '@/components/ui/button';
 import { type Tool } from '@/lib/types';
 import { motion } from 'framer-motion';
@@ -10,6 +9,10 @@ interface HoverPreviewCardProps {
 }
 
 export function HoverPreviewCard({ tool, onClick }: HoverPreviewCardProps) {
+	const placeholderUrl = `https://placehold.co/64x64/eee/ccc?text=${tool.name
+		.charAt(0)
+		.toUpperCase()}`;
+
 	return (
 		<motion.div
 			className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-80"
@@ -19,12 +22,17 @@ export function HoverPreviewCard({ tool, onClick }: HoverPreviewCardProps) {
 			transition={{ duration: 0.15 }}>
 			<button
 				onClick={onClick}
-				className="w-full h-full text-left p-6 space-y-4
-                   rounded-xl border shadow-2xl cursor-pointer
-                   bg-background/80 backdrop-blur-sm">
+				className="w-full h-full text-left p-6 space-y-4 rounded-xl border shadow-2xl cursor-pointer bg-background/80 backdrop-blur-sm">
 				<div className="flex items-center gap-4">
 					<div className="w-16 h-16 flex-shrink-0">
-						<PlaceholderLogo name={tool.name} />
+						<img
+							src={tool.logoUrl || placeholderUrl}
+							alt={`${tool.name} logo`}
+							className="w-full h-full object-cover rounded-lg border"
+							onError={(e) => {
+								e.currentTarget.src = placeholderUrl;
+							}}
+						/>
 					</div>
 					<div className="flex-grow">
 						<h3 className="font-bold text-lg">{tool.name}</h3>
@@ -36,9 +44,7 @@ export function HoverPreviewCard({ tool, onClick }: HoverPreviewCardProps) {
 						{tool.visual.content.map((item, index) => (
 							<div
 								key={index}
-								className="flex items-center gap-1.5 text-xs
-                                       bg-muted/50 text-muted-foreground
-                                       px-2 py-1 rounded-full">
+								className="flex items-center gap-1.5 text-xs bg-muted/50 text-muted-foreground px-2 py-1 rounded-full">
 								{item.icon === 'zap' ? (
 									<Zap className="h-3 w-3 text-yellow-500" />
 								) : (

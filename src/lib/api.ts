@@ -2,8 +2,8 @@ import axios from 'axios';
 import {
 	type LoginCredentials,
 	type SignupData,
-	type SubmitToolData,
 	type Tool,
+	type User,
 } from './types';
 
 
@@ -67,8 +67,12 @@ export const getFeaturedTools = async (): Promise<Tool[]> => {
 	return data;
 };
 
-export const submitTool = async (toolData: SubmitToolData): Promise<Tool> => {
-	const { data } = await api.post('/tools', toolData);
+export const submitTool = async (formData: FormData): Promise<Tool> => {
+	const { data } = await api.post('/tools', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 	return data;
 };
 
@@ -117,4 +121,28 @@ export const getAllToolsAdmin = async (): Promise<Tool[]> => {
     return data;
 };
 
+export const getUserProfile = async (): Promise<User> => {
+    const { data } = await api.get('/users/profile');
+    return data;
+};
+
+
+export const updateUserProfile = async (formData: FormData): Promise<User> => {
+    const { data } = await api.put('/users/profile', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return data;
+};
+
+
+export const updateTool = async (id: string, formData: FormData): Promise<Tool> => {
+    const { data } = await api.put(`/tools/${id}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return data;
+};
 export default api;

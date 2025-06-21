@@ -16,7 +16,7 @@ export function SearchResults({
 	onCardClick,
 }: SearchResultsProps) {
 	return (
-		<section className="py-20 bg-background">
+		<section className="bg-background -mt-40">
 			<div className="container mx-auto px-4 md:px-6">
 				<div className="text-center max-w-3xl mx-auto mt-12 mb-16">
 					<h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

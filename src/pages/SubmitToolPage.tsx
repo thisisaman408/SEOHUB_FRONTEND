@@ -18,20 +18,19 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { submitTool } from '@/lib/api';
-import { type SubmitToolData } from '@/lib/types';
+import { type SubmitToolFormData } from '@/lib/types';
 import { isAxiosError } from 'axios';
-import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2, Trash2, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export function SubmitToolPage() {
 	const navigate = useNavigate();
 	const isMobile = useMediaQuery('(max-width: 768px)');
-
 	const [isLoading, setIsLoading] = useState(false);
 	const [step, setStep] = useState(1);
-	const [formData, setFormData] = useState<SubmitToolData>({
+	const [formData, setFormData] = useState<SubmitToolFormData>({
 		name: '',
 		tagline: '',
 		description: '',
@@ -39,20 +38,29 @@ export function SubmitToolPage() {
 		tags: '',
 		appStoreUrl: '',
 		playStoreUrl: '',
-		visual: {
-			color: 'blue',
-			content: [{ icon: 'zap', text: '' }],
-		},
+		visual: { color: 'blue', content: [{ icon: 'zap', text: '' }] },
 	});
+	const [logoFile, setLogoFile] = useState<File | null>(null);
+	const [logoPreview, setLogoPreview] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => {
 		setFormData({ ...formData, [e.target.id]: e.target.value });
 	};
-	const handleVisualChange = <T extends keyof SubmitToolData['visual']>(
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			setLogoFile(file);
+			setLogoPreview(URL.createObjectURL(file));
+		}
+	};
+
+	const handleVisualChange = <T extends keyof SubmitToolFormData['visual']>(
 		field: T,
-		value: SubmitToolData['visual'][T]
+		value: SubmitToolFormData['visual'][T]
 	) => {
 		setFormData({
 			...formData,
@@ -77,6 +85,7 @@ export function SubmitToolPage() {
 		const newContent = formData.visual.content.filter((_, i) => i !== index);
 		handleVisualChange('content', newContent);
 	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!formData.name || !formData.tagline || !formData.websiteUrl) {
@@ -84,8 +93,22 @@ export function SubmitToolPage() {
 			return;
 		}
 		setIsLoading(true);
+
+		const data = new FormData();
+		// Append all text-based form data
+		Object.entries(formData).forEach(([key, value]) => {
+			if (key === 'visual') {
+				data.append(key, JSON.stringify(value));
+			} else {
+				data.append(key, value as string);
+			}
+		});
+		if (logoFile) {
+			data.append('toolLogo', logoFile);
+		}
+
 		try {
-			await submitTool(formData);
+			await submitTool(data);
 			toast.success('Tool submitted for review!');
 			navigate('/my-tools');
 		} catch (error) {
@@ -98,48 +121,52 @@ export function SubmitToolPage() {
 			setIsLoading(false);
 		}
 	};
+
 	const nextStep = () => {
-		if (step === 1) {
-			if (!formData.name || !formData.tagline || !formData.description) {
-				toast.error('Please fill out the tool name, tagline, and description.');
-				return;
-			}
+		if (
+			step === 1 &&
+			(!formData.name || !formData.tagline || !formData.description)
+		) {
+			toast.error('Please fill out the tool name, tagline, and description.');
+			return;
 		}
-		if (step === 2) {
-			if (!formData.websiteUrl) {
-				toast.error('Please provide a website URL.');
-				return;
-			}
+		if (step === 2 && !formData.websiteUrl) {
+			toast.error('Please provide a website URL.');
+			return;
 		}
 		setStep((prev) => prev + 1);
 	};
 
 	const prevStep = () => setStep((prev) => prev - 1);
 
-	const renderFormContent = () => {
-		if (!isMobile) {
-			return (
-				<>
-					{renderStep1()}
-					{renderStep2()}
-					{renderStep3()}
-				</>
-			);
-		}
-		switch (step) {
-			case 1:
-				return renderStep1();
-			case 2:
-				return renderStep2();
-			case 3:
-				return renderStep3();
-			default:
-				return renderStep1();
-		}
-	};
-
 	const renderStep1 = () => (
 		<>
+			<div className="space-y-2">
+				<Label>Tool Logo (Optional)</Label>
+				<div
+					className="w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
+					onClick={() => fileInputRef.current?.click()}>
+					{logoPreview ? (
+						<img
+							src={logoPreview}
+							alt="logo preview"
+							className="h-full w-full object-contain p-2"
+						/>
+					) : (
+						<div className="text-center text-muted-foreground">
+							<Upload className="mx-auto h-8 w-8" />
+							<p>Click to upload logo</p>
+						</div>
+					)}
+				</div>
+				<input
+					type="file"
+					ref={fileInputRef}
+					className="hidden"
+					onChange={handleFileChange}
+					accept="image/*"
+				/>
+			</div>
 			<div className="grid gap-2">
 				<Label htmlFor="name">Tool Name</Label>
 				<Input
@@ -165,6 +192,7 @@ export function SubmitToolPage() {
 					required
 					value={formData.description}
 					onChange={handleChange}
+					className="min-h-[120px]"
 				/>
 			</div>
 		</>
@@ -194,7 +222,7 @@ export function SubmitToolPage() {
 					<Input
 						id="appStoreUrl"
 						type="url"
-						value={formData.appStoreUrl}
+						value={formData.appStoreUrl ?? ''}
 						onChange={handleChange}
 					/>
 				</div>
@@ -203,13 +231,14 @@ export function SubmitToolPage() {
 					<Input
 						id="playStoreUrl"
 						type="url"
-						value={formData.playStoreUrl}
+						value={formData.playStoreUrl ?? ''}
 						onChange={handleChange}
 					/>
 				</div>
 			</div>
 		</>
 	);
+
 	const renderStep3 = () => (
 		<div className="space-y-6">
 			<div className="grid gap-2">
@@ -254,6 +283,27 @@ export function SubmitToolPage() {
 		</div>
 	);
 
+	const renderFormContent = () => {
+		if (!isMobile)
+			return (
+				<>
+					<div className="space-y-6">{renderStep1()}</div>
+					<div className="space-y-6">{renderStep2()}</div>
+					<div className="space-y-6">{renderStep3()}</div>
+				</>
+			);
+		switch (step) {
+			case 1:
+				return renderStep1();
+			case 2:
+				return renderStep2();
+			case 3:
+				return renderStep3();
+			default:
+				return renderStep1();
+		}
+	};
+
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-background px-4 py-12">
 			<div className="w-full max-w-2xl">
@@ -293,35 +343,37 @@ export function SubmitToolPage() {
 												? 'Links & Tags'
 												: 'Card Visuals'
 									  }`
-									: 'Fill out the details below. Our team will review your submission.'}
+									: 'Fill out the details below to submit your tool.'}
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-6">
 							{renderFormContent()}
-							<div className="flex items-center justify-between pt-6">
-								{isMobile && step > 1 ? (
-									<Button
-										type="button"
-										variant="outline"
-										onClick={prevStep}
-										disabled={isLoading}>
-										Back
-									</Button>
-								) : (
-									<div />
-								)}
-
-								{isMobile && step < 3 ? (
-									<Button type="button" onClick={nextStep} disabled={isLoading}>
-										Next
-									</Button>
-								) : (
-									<Button className="w-full" type="submit" disabled={isLoading}>
-										{isLoading ? 'Submitting...' : 'Submit for Review'}
-									</Button>
-								)}
-							</div>
 						</CardContent>
+						<div className="flex items-center justify-between p-6">
+							{isMobile && step > 1 ? (
+								<Button
+									type="button"
+									variant="outline"
+									onClick={prevStep}
+									disabled={isLoading}>
+									Back
+								</Button>
+							) : (
+								<div />
+							)}
+							{isMobile && step < 3 ? (
+								<Button type="button" onClick={nextStep} disabled={isLoading}>
+									Next
+								</Button>
+							) : (
+								<Button className="w-full" type="submit" disabled={isLoading}>
+									{isLoading ? (
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									) : null}{' '}
+									Submit for Review
+								</Button>
+							)}
+						</div>
 					</form>
 				</Card>
 			</div>

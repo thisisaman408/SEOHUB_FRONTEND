@@ -40,7 +40,7 @@ export function FeaturedToolsStack({ onCardClick }: FeaturedToolsStackProps) {
 	).map(adaptFeaturedToTool);
 
 	return (
-		<div className="container mx-auto px-4 md:px-6 mb-16">
+		<div className="container mx-auto px-4 md:px-6 mb-16 ">
 			<div className="mb-8 border-b pb-4">
 				<h3 className="text-2xl font-bold tracking-tight text-foreground">
 					Featured Tools

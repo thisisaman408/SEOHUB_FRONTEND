@@ -9,6 +9,13 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
+import {
+	LifeBuoy,
+	LogOut,
+	Settings,
+	Star,
+	User as UserIcon,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function UserNav() {
@@ -25,9 +32,12 @@ export function UserNav() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" className="relative h-8 w-8 rounded-full">
-					<Avatar className="h-9 w-9 border">
-						<AvatarImage src="" alt={user.companyName} />
+				<Button variant="ghost" className="relative h-10 w-10 rounded-full">
+					<Avatar className="h-10 w-10 border">
+						<AvatarImage
+							src={user.companyLogoUrl || ''}
+							alt={user.companyName}
+						/>
 						<AvatarFallback>
 							{user.companyName?.[0]?.toUpperCase() ?? 'U'}
 						</AvatarFallback>
@@ -46,14 +56,28 @@ export function UserNav() {
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
+				{/* --- ADDED: Link to the new User Profile page --- */}
+				<DropdownMenuItem onSelect={() => navigate('/profile')}>
+					<UserIcon className="mr-2 h-4 w-4" />
+					<span>My Profile</span>
+				</DropdownMenuItem>
 				<DropdownMenuItem onSelect={() => navigate('/my-tools')}>
-					My Tools
+					<Settings className="mr-2 h-4 w-4" />
+					<span>My Tools</span>
 				</DropdownMenuItem>
 				<DropdownMenuItem onSelect={() => navigate('/submit-tool')}>
-					Submit New Tool
+					<Star className="mr-2 h-4 w-4" />
+					<span>Submit New Tool</span>
+				</DropdownMenuItem>
+				<DropdownMenuItem disabled>
+					<LifeBuoy className="mr-2 h-4 w-4" />
+					<span>Support</span>
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem onSelect={handleLogout}>Log out</DropdownMenuItem>
+				<DropdownMenuItem onSelect={handleLogout}>
+					<LogOut className="mr-2 h-4 w-4" />
+					<span>Log out</span>
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

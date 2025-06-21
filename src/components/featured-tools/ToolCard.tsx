@@ -72,6 +72,9 @@ function AIVisualMockup({ visual }: { visual: Tool['visual'] }) {
 
 export function ToolCard({ tool, onCardClick }: ToolCardProps) {
 	const colors = colorMap[tool.visual?.color || 'default'] || colorMap.default;
+	const placeholderUrl = `https://placehold.co/80x80/eee/ccc?text=${tool.name
+		.charAt(0)
+		.toUpperCase()}`;
 
 	return (
 		<Card
@@ -79,6 +82,16 @@ export function ToolCard({ tool, onCardClick }: ToolCardProps) {
 			onClick={onCardClick}>
 			<CardContent className="grid h-full grid-cols-1 md:grid-cols-2 p-8 gap-8 items-center">
 				<div className="flex flex-col gap-4 text-left">
+					<div className="w-20 h-20 mb-2">
+						<img
+							src={tool.logoUrl || placeholderUrl}
+							alt={`${tool.name} logo`}
+							className="w-full h-full object-cover rounded-xl border"
+							onError={(e) => {
+								e.currentTarget.src = placeholderUrl;
+							}}
+						/>
+					</div>
 					<Badge
 						variant="outline"
 						className={`w-fit ${colors.text} ${colors.border}`}>
