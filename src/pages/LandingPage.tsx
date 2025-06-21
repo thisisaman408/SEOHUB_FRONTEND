@@ -1,7 +1,6 @@
 import { ExploreToolsGrid } from '@/components/explore-tools/ExploreToolsGrid';
 import { FeaturedToolsStack } from '@/components/featured-tools/FeaturedToolStack';
 import { Hero } from '@/components/hero/index';
-import { PlaceholderLogo } from '@/components/PlaceholderLogo';
 import { SearchResults } from '@/components/search-results/SearchResults';
 import { TrustSignals } from '@/components/TrustSignals';
 import { Badge } from '@/components/ui/badge';
@@ -109,8 +108,20 @@ export function LandingPage() {
 						<>
 							<DialogHeader>
 								<div className="flex items-start gap-4 mb-4">
-									<div className="w-20 h-20 flex-shrink-0">
-										<PlaceholderLogo name={selectedTool.name} />
+									{/* --- THIS IS THE CORRECTED LOGIC --- */}
+									<div className="w-20 h-20 flex-shrink-0 bg-muted rounded-lg flex items-center justify-center">
+										{selectedTool.logoUrl ? (
+											<img
+												src={selectedTool.logoUrl}
+												alt={`${selectedTool.name} logo`}
+												className="w-full h-full object-cover rounded-lg border"
+											/>
+										) : (
+											// Fallback to the PlaceholderLogo component
+											<span className="text-4xl font-bold text-muted-foreground">
+												{selectedTool.name.charAt(0).toUpperCase()}
+											</span>
+										)}
 									</div>
 									<div className="pt-2">
 										<DialogTitle className="text-2xl">
