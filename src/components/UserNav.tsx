@@ -56,7 +56,6 @@ export function UserNav() {
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				{/* --- ADDED: Link to the new User Profile page --- */}
 				<DropdownMenuItem onSelect={() => navigate('/profile')}>
 					<UserIcon className="mr-2 h-4 w-4" />
 					<span>My Profile</span>

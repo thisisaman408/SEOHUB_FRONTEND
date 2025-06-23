@@ -9,11 +9,17 @@ gsap.registerPlugin(ScrollTrigger);
 interface FeaturedToolsStackProps {
 	tools: Tool[];
 	onCardClick: (tool: Tool) => void;
+	onToolRatingUpdate: (
+		toolId: string,
+		newAverageRating: number,
+		newNumberOfRatings: number
+	) => void;
 }
 
 export function FeaturedToolsStack({
 	tools,
 	onCardClick,
+	onToolRatingUpdate,
 }: FeaturedToolsStackProps) {
 	const component = useRef<HTMLDivElement>(null);
 	const numTools = tools.length;
@@ -82,7 +88,11 @@ export function FeaturedToolsStack({
 								key={tool._id}
 								className="panel absolute top-0 left-0 h-full w-full flex items-center justify-center px-4 sm:px-8"
 								style={{ zIndex: index + 1 }}>
-								<ToolCard tool={tool} onCardClick={() => onCardClick(tool)} />
+								<ToolCard
+									tool={tool}
+									onCardClick={() => onCardClick(tool)}
+									onToolRatingUpdate={onToolRatingUpdate}
+								/>
 							</div>
 						))}
 					</div>

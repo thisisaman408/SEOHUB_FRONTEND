@@ -1,3 +1,4 @@
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -41,7 +42,6 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-// Define types for clarity
 type FilterType = 'pending' | 'approved' | 'rejected' | 'all';
 interface AdminStats {
 	tools: {
@@ -57,19 +57,17 @@ interface AdminStats {
 export function AdminDashboardPage() {
 	const { logout } = useAuth();
 	const isMobile = useMediaQuery('(max-width: 768px)');
-
-	// State management
 	const [stats, setStats] = useState<AdminStats | null>(null);
 	const [displayedTools, setDisplayedTools] = useState<Tool[]>([]);
 	const [activeFilter, setActiveFilter] = useState<FilterType>('pending');
 	const [isLoading, setIsLoading] = useState(true);
 	const [isUpdating, setIsUpdating] = useState<string | null>(null);
+	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+	const [toolToDelete, setToolToDelete] = useState<Tool | null>(null);
 
-	// Animation state
 	const controls = useAnimation();
 	const [hasAnimated, setHasAnimated] = useState(false);
 
-	// Fetch stats and initial tool list
 	useEffect(() => {
 		const fetchInitialData = async () => {
 			setIsLoading(true);
@@ -179,16 +177,17 @@ export function AdminDashboardPage() {
 			setIsUpdating(null);
 		}
 	};
+	const handleDeleteClick = (tool: Tool) => {
+		setToolToDelete(tool);
+		setIsConfirmOpen(true);
+	};
+	const handleConfirmDelete = async () => {
+		if (!toolToDelete) return;
 
-	const handleDelete = async (id: string) => {
-		if (
-			!window.confirm('Are you sure you want to permanently delete this tool?')
-		)
-			return;
-		setIsUpdating(id);
+		setIsUpdating(toolToDelete._id);
 		try {
-			await deleteTool(id);
-			toast.success('Tool has been deleted.');
+			await deleteTool(toolToDelete._id);
+			toast.success(`Tool "${toolToDelete.name}" has been deleted.`);
 			fetchToolsByFilter(activeFilter);
 			const statsData = await getAdminStats();
 			setStats(statsData);
@@ -196,12 +195,14 @@ export function AdminDashboardPage() {
 			if (isAxiosError(error)) {
 				toast.error('Failed to delete tool.');
 			}
+			console.error('Deletion error:', error);
 		} finally {
 			setIsUpdating(null);
+			setToolToDelete(null);
+			setIsConfirmOpen(false);
 		}
 	};
 
-	// --- UI Components ---
 	const StatCard = ({
 		title,
 		value,
@@ -270,7 +271,7 @@ export function AdminDashboardPage() {
 			<Button
 				size="sm"
 				variant="destructive"
-				onClick={() => handleDelete(tool._id)}
+				onClick={() => handleDeleteClick(tool)}
 				disabled={isUpdating === tool._id}>
 				<Trash2 className="h-4 w-4" />
 			</Button>
@@ -401,6 +402,16 @@ export function AdminDashboardPage() {
 					</CardContent>
 				</Card>
 			</main>
+			<ConfirmDialog
+				isOpen={isConfirmOpen}
+				onClose={() => setIsConfirmOpen(false)}
+				onConfirm={handleConfirmDelete}
+				title="Confirm Deletion"
+				description={`Are you sure you want to permanently delete "${toolToDelete?.name}"? This action cannot be undone.`}
+				confirmText="Delete Permanently"
+				cancelText="Cancel"
+				confirmVariant="destructive"
+			/>
 		</div>
 	);
 }

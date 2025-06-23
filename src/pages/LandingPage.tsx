@@ -1,7 +1,8 @@
 import { ExploreToolsGrid } from '@/components/explore-tools/ExploreToolsGrid';
-import { FeaturedToolsStack } from '@/components/featured-tools/FeaturedToolStack';
+// import { FeaturedToolsStack } from '@/components/featured-tools/FeaturedToolStack';
 import { Hero } from '@/components/hero/index';
 import { SearchResults } from '@/components/search-results/SearchResults';
+import { StarRating } from '@/components/StarRating';
 import { TrustSignals } from '@/components/TrustSignals';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,15 +13,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { getAllTools, getFeaturedTools } from '@/lib/api';
-import { type Tool } from '@/lib/types';
+import { getAllTools } from '@/lib/api';
+import { type Tool, colorMap } from '@/lib/types';
 import { ArrowRight, BarChart, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export function LandingPage() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [allTools, setAllTools] = useState<Tool[]>([]);
-	const [featuredTools, setFeaturedTools] = useState<Tool[]>([]);
+	// const [featuredTools, setFeaturedTools] = useState<Tool[]>([]);
 	const [searchResults, setSearchResults] = useState<Tool[]>([]);
 	const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -29,12 +30,11 @@ export function LandingPage() {
 		const fetchAllData = async () => {
 			setIsLoading(true);
 			try {
-				const [toolsData, featuredData] = await Promise.all([
-					getAllTools(),
-					getFeaturedTools(),
-				]);
+				const toolsData = await getAllTools();
 				setAllTools(toolsData);
-				setFeaturedTools(featuredData);
+
+				// const featuredData = await getFeaturedTools();
+				// setFeaturedTools(featuredData);
 			} catch (error) {
 				console.error('Failed to fetch tools:', error);
 			} finally {
@@ -66,6 +66,56 @@ export function LandingPage() {
 		setSearchTerm('');
 	};
 
+	const handleToolRatingUpdate = (
+		toolId: string,
+		newAverageRating: number,
+		newNumberOfRatings: number
+	) => {
+		if (selectedTool && selectedTool._id === toolId) {
+			setSelectedTool({
+				...selectedTool,
+				averageRating: newAverageRating,
+				numberOfRatings: newNumberOfRatings,
+			});
+		}
+
+		setAllTools((prevTools) =>
+			prevTools.map((tool) =>
+				tool._id === toolId
+					? {
+							...tool,
+							averageRating: newAverageRating,
+							numberOfRatings: newNumberOfRatings,
+					  }
+					: tool
+			)
+		);
+
+		// setFeaturedTools((prevTools) =>
+		// 	prevTools.map((tool) =>
+		// 		tool._id === toolId
+		// 			? {
+		// 					...tool,
+		// 					averageRating: newAverageRating,
+		// 					numberOfRatings: newNumberOfRatings,
+		// 			  }
+		// 			: tool
+		// 	)
+		// );
+
+		setSearchResults((prevResults) =>
+			prevResults.map((tool) =>
+				tool._id === toolId
+					? {
+							...tool,
+							averageRating: newAverageRating,
+							numberOfRatings: newNumberOfRatings,
+					  }
+					: tool
+			)
+		);
+	};
+
 	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center h-screen">
@@ -73,7 +123,6 @@ export function LandingPage() {
 			</div>
 		);
 	}
-
 	return (
 		<>
 			<Hero
@@ -88,16 +137,24 @@ export function LandingPage() {
 						results={searchResults}
 						onClearSearch={clearSearch}
 						onCardClick={setSelectedTool}
+						onToolRatingUpdate={handleToolRatingUpdate}
 					/>
 				</div>
 			) : (
 				<>
 					<TrustSignals />
-					<FeaturedToolsStack
+
+					{/* <FeaturedToolsStack
 						tools={featuredTools}
 						onCardClick={setSelectedTool}
+						onToolRatingUpdate={handleToolRatingUpdate}
+					/> */}
+
+					<ExploreToolsGrid
+						tools={allTools}
+						onCardClick={setSelectedTool}
+						onToolRatingUpdate={handleToolRatingUpdate}
 					/>
-					<ExploreToolsGrid tools={allTools} onCardClick={setSelectedTool} />
 				</>
 			)}
 			<Dialog
@@ -106,34 +163,81 @@ export function LandingPage() {
 				<DialogContent className="sm:max-w-[650px]">
 					{selectedTool && (
 						<>
-							<DialogHeader>
-								<div className="flex items-start gap-4 mb-4">
-									{/* --- THIS IS THE CORRECTED LOGIC --- */}
-									<div className="w-20 h-20 flex-shrink-0 bg-muted rounded-lg flex items-center justify-center">
-										{selectedTool.logoUrl ? (
-											<img
-												src={selectedTool.logoUrl}
-												alt={`${selectedTool.name} logo`}
-												className="w-full h-full object-cover rounded-lg border"
-											/>
-										) : (
-											// Fallback to the PlaceholderLogo component
-											<span className="text-4xl font-bold text-muted-foreground">
-												{selectedTool.name.charAt(0).toUpperCase()}
-											</span>
-										)}
-									</div>
-									<div className="pt-2">
-										<DialogTitle className="text-2xl">
-											{selectedTool.name}
-										</DialogTitle>
-										<DialogDescription>
-											{selectedTool.tagline}
-										</DialogDescription>
+							<DialogHeader
+								className={`relative flex flex-row items-start gap-4 p-6 rounded-t-lg overflow-hidden ${
+									selectedTool.isFeatured
+										? colorMap[selectedTool.visual?.color || 'default']?.bg
+										: 'bg-background'
+								}`}>
+								{selectedTool.isFeatured && (
+									<Badge
+										variant="secondary"
+										className={`absolute top-4 right-4 z-20 text-xs py-1 px-2 rounded-full
+                                            ${
+																							colorMap[
+																								selectedTool.visual?.color ||
+																									'default'
+																							]?.text
+																						}
+                                            ${
+																							colorMap[
+																								selectedTool.visual?.color ||
+																									'default'
+																							]?.border
+																						}
+                                            ${
+																							colorMap[
+																								selectedTool.visual?.color ||
+																									'default'
+																							]?.bg
+																						}`}>
+										FEATURED
+									</Badge>
+								)}
+
+								<div className="w-20 h-20 flex-shrink-0 bg-muted rounded-lg flex items-center justify-center z-10">
+									{selectedTool.logoUrl ? (
+										<img
+											src={selectedTool.logoUrl}
+											alt={`${selectedTool.name} logo`}
+											className="w-full h-full object-cover rounded-lg border"
+										/>
+									) : (
+										<span className="text-4xl font-bold text-muted-foreground">
+											{selectedTool.name.charAt(0).toUpperCase()}
+										</span>
+									)}
+								</div>
+								<div className="pt-2 z-10">
+									<DialogTitle
+										className={`text-2xl ${
+											selectedTool.isFeatured ? 'text-black' : 'text-foreground'
+										}`}>
+										{selectedTool.name}
+									</DialogTitle>
+									<DialogDescription
+										className={`${
+											selectedTool.isFeatured
+												? 'text-gray-600/80'
+												: 'text-muted-foreground'
+										}`}>
+										{selectedTool.tagline}
+									</DialogDescription>
+									<div className="mt-2">
+										<StarRating
+											toolId={selectedTool._id}
+											averageRating={selectedTool.averageRating}
+											numberOfRatings={selectedTool.numberOfRatings}
+											size={24}
+											allowInput={true}
+											onRatingChange={(avg, num) =>
+												handleToolRatingUpdate(selectedTool._id, avg, num)
+											}
+										/>
 									</div>
 								</div>
 							</DialogHeader>
-							<div className="grid gap-4 py-4">
+							<div className="grid gap-4 py-4 px-6">
 								<p className="text-sm text-muted-foreground">
 									{selectedTool.description}
 								</p>
@@ -166,7 +270,7 @@ export function LandingPage() {
 							</div>
 							<Button
 								size="lg"
-								className="w-full mt-4"
+								className="w-full mt-4 mx-6 mb-6"
 								onClick={() => window.open(selectedTool.websiteUrl, '_blank')}>
 								Visit Website <ArrowRight className="ml-2 h-4 w-4" />
 							</Button>

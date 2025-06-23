@@ -11,26 +11,21 @@ export function AppLayout() {
 	const [activeModal, setActiveModal] = useState<'login' | 'signup' | null>(
 		null
 	);
-	const { login } = useAuth(); // Get the login function from our context
+	const { login } = useAuth();
 	const navigate = useNavigate();
-
-	// This function will be called by the LoginPage on success
 	const handleLoginSuccess = (userData: User) => {
-		login(userData); // 1. Update the global state
-		setActiveModal(null); // 2. Close the modal
-		navigate('/my-tools'); // 3. Redirect to the user's dashboard
+		login(userData);
+		setActiveModal(null);
+		navigate('/my-tools');
 	};
-
-	// This function will be called by the SignupPage on success
 	const handleSignupSuccess = (userData: User) => {
-		login(userData); // 1. Update the global state
-		setActiveModal(null); // 2. Close the modal
-		navigate('/submit-tool'); // 3. Redirect to the submit tool page
+		login(userData);
+		setActiveModal(null);
+		navigate('/submit-tool');
 	};
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background">
-			{/* The Header component will now automatically update when the 'user' in AuthContext changes */}
 			<Header
 				onShowLogin={() => setActiveModal('login')}
 				onShowSignup={() => setActiveModal('signup')}
@@ -39,8 +34,6 @@ export function AppLayout() {
 				<Outlet />
 			</main>
 			<Footer />
-
-			{/* The login and signup modals are controlled here */}
 			{activeModal === 'login' && (
 				<LoginPage
 					onClose={() => setActiveModal(null)}

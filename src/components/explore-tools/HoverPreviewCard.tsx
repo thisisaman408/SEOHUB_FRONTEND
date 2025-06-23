@@ -1,17 +1,33 @@
+import { StarRating } from '@/components/StarRating';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { type Tool } from '@/lib/types';
+import { type Tool, colorMap } from '@/lib/types';
 import { motion } from 'framer-motion';
 import { ArrowRight, BarChart, Zap } from 'lucide-react';
 
 interface HoverPreviewCardProps {
 	tool: Tool;
 	onClick: () => void;
+	onToolRatingUpdate: (
+		toolId: string,
+		newAverageRating: number,
+		newNumberOfRatings: number
+	) => void;
 }
 
-export function HoverPreviewCard({ tool, onClick }: HoverPreviewCardProps) {
+export function HoverPreviewCard({
+	tool,
+	onClick,
+	onToolRatingUpdate,
+}: HoverPreviewCardProps) {
 	const placeholderUrl = `https://placehold.co/64x64/eee/ccc?text=${tool.name
 		.charAt(0)
 		.toUpperCase()}`;
+
+	const colors = colorMap[tool.visual?.color || 'default'] || colorMap.default;
+	const featuredBorderClass = tool.isFeatured
+		? `border-2 ${colors.border} shadow-lg`
+		: 'border';
 
 	return (
 		<motion.div
@@ -22,7 +38,7 @@ export function HoverPreviewCard({ tool, onClick }: HoverPreviewCardProps) {
 			transition={{ duration: 0.15 }}>
 			<button
 				onClick={onClick}
-				className="w-full h-full text-left p-6 space-y-4 rounded-xl border shadow-2xl cursor-pointer bg-background/80 backdrop-blur-sm">
+				className={`w-full h-full text-left p-6 space-y-4 rounded-xl ${featuredBorderClass} shadow-2xl!important cursor-pointer bg-background/80 backdrop-blur-sm`}>
 				<div className="flex items-center gap-4">
 					<div className="w-16 h-16 flex-shrink-0">
 						<img
@@ -38,6 +54,25 @@ export function HoverPreviewCard({ tool, onClick }: HoverPreviewCardProps) {
 						<h3 className="font-bold text-lg">{tool.name}</h3>
 						<p className="text-sm text-muted-foreground">{tool.tagline}</p>
 					</div>
+				</div>
+				{tool.isFeatured && (
+					<Badge
+						variant="secondary"
+						className={`whitespace-nowrap ${colors.bg} ${colors.text} ${colors.border} mt-2`}>
+						Featured
+					</Badge>
+				)}
+				<div className="pt-2">
+					<StarRating
+						toolId={tool._id}
+						averageRating={tool.averageRating}
+						numberOfRatings={tool.numberOfRatings}
+						size={16}
+						allowInput={true}
+						onRatingChange={(avg, num) =>
+							onToolRatingUpdate(tool._id, avg, num)
+						}
+					/>
 				</div>
 				{tool.visual?.content && (
 					<div className="flex flex-wrap gap-2 pt-1">

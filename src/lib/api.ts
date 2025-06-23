@@ -145,4 +145,9 @@ export const updateTool = async (id: string, formData: FormData): Promise<Tool> 
     });
     return data;
 };
+
+export const rateTool = async (toolId: string, rating: number) => {
+    const { data } = await api.post(`/tools/${toolId}/rate`, { rating });
+    return data;
+};
 export default api;

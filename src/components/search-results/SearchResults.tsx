@@ -1,20 +1,34 @@
 import { GridToolCard } from '@/components/explore-tools/GridToolCard';
 import { Button } from '@/components/ui/button';
 import { type Tool } from '@/lib/types';
-
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
+import { HoverPreviewCard } from '../explore-tools/HoverPreviewCard';
 interface SearchResultsProps {
 	searchTerm: string;
 	results: Tool[];
 	onClearSearch: () => void;
 	onCardClick: (tool: Tool) => void;
+	onToolRatingUpdate: (
+		toolId: string,
+		newAverageRating: number,
+		newNumberOfRatings: number
+	) => void;
 }
+
+const cardVariants = {
+	hidden: { opacity: 0, y: 20 },
+	show: { opacity: 1, y: 0 },
+};
 
 export function SearchResults({
 	searchTerm,
 	results,
 	onClearSearch,
 	onCardClick,
+	onToolRatingUpdate,
 }: SearchResultsProps) {
+	const [hoveredToolId, setHoveredToolId] = useState<string | null>(null);
 	return (
 		<section className="bg-background -mt-40">
 			<div className="container mx-auto px-4 md:px-6">
@@ -31,17 +45,32 @@ export function SearchResults({
 						Clear Search & View All Tools
 					</Button>
 				</div>
-				{/* The featured stack was removed from here as it should not appear with search results */}
 				{results.length > 0 && (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+					<motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 						{results.map((tool) => (
-							<GridToolCard
-								key={tool._id} // Use MongoDB's _id
-								tool={tool}
-								onCardClick={() => onCardClick(tool)}
-							/>
+							<motion.div
+								key={tool._id}
+								className="relative"
+								variants={cardVariants}
+								onHoverStart={() => setHoveredToolId(tool._id)}
+								onHoverEnd={() => setHoveredToolId(null)}>
+								<GridToolCard
+									tool={tool}
+									onCardClick={() => onCardClick(tool)}
+									onToolRatingUpdate={onToolRatingUpdate}
+								/>
+								<AnimatePresence>
+									{hoveredToolId === tool._id && (
+										<HoverPreviewCard
+											tool={tool}
+											onClick={() => onCardClick(tool)}
+											onToolRatingUpdate={onToolRatingUpdate}
+										/>
+									)}
+								</AnimatePresence>
+							</motion.div>
 						))}
-					</div>
+					</motion.div>
 				)}
 			</div>
 		</section>

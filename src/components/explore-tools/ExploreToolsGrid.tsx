@@ -7,11 +7,17 @@ import { HoverPreviewCard } from './HoverPreviewCard';
 interface ExploreToolsGridProps {
 	tools: Tool[];
 	onCardClick: (tool: Tool) => void;
+	onToolRatingUpdate: (
+		toolId: string,
+		newAverageRating: number,
+		newNumberOfRatings: number
+	) => void;
 }
 
 export function ExploreToolsGrid({
 	tools,
 	onCardClick,
+	onToolRatingUpdate,
 }: ExploreToolsGridProps) {
 	const [hoveredToolId, setHoveredToolId] = useState<string | null>(null);
 
@@ -43,17 +49,22 @@ export function ExploreToolsGrid({
 					}}>
 					{tools.map((tool) => (
 						<motion.div
-							key={tool._id} // Use MongoDB's _id
+							key={tool._id}
 							className="relative"
 							variants={cardVariants}
 							onHoverStart={() => setHoveredToolId(tool._id)}
 							onHoverEnd={() => setHoveredToolId(null)}>
-							<GridToolCard tool={tool} onCardClick={() => onCardClick(tool)} />
+							<GridToolCard
+								tool={tool}
+								onCardClick={() => onCardClick(tool)}
+								onToolRatingUpdate={onToolRatingUpdate}
+							/>
 							<AnimatePresence>
 								{hoveredToolId === tool._id && (
 									<HoverPreviewCard
 										tool={tool}
 										onClick={() => onCardClick(tool)}
+										onToolRatingUpdate={onToolRatingUpdate}
 									/>
 								)}
 							</AnimatePresence>
