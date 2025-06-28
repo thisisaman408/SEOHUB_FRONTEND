@@ -2,9 +2,9 @@ import { SearchBar } from '@/components/hero/SearchBar';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearSearch } from '@/store/slice/toolsSlice';
-import { openModal } from '@/store/slice/uiSlice';
 import { motion, type Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { HeroVisual } from './HeroVisual';
 
 export function Hero() {
@@ -33,7 +33,8 @@ export function Hero() {
 
 	const handleListYourTool = () => {
 		if (!user) {
-			dispatch(openModal({ modal: 'login' }));
+			toast.warning('Login for listing your tool');
+			navigate('/login');
 			return;
 		}
 		navigate('/submit-tool');

@@ -342,26 +342,24 @@ export const updateUserProfile = async (formData: FormData): Promise<User> => {
 
 // =================AI SEARCH =====================
 export const searchToolsWithAI = async (
-    query: string,
-    filters: SearchFilters = {},
-    page: number = 1,
-    limit: number = 20
+  query: string,
+  filters: SearchFilters = {},
+  page: number = 1,
+  limit: number = 20
 ): Promise<SearchResponse> => {
-    const searchParams = new URLSearchParams();
-    
-    if (query.trim()) searchParams.append('q', query);
-    if (page > 1) searchParams.append('page', page.toString());
-    if (limit !== 20) searchParams.append('limit', limit.toString());
-    
-    
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-            searchParams.append(`filters[${key}]`, value.toString());
-        }
-    });
+  const searchParams = new URLSearchParams();
+  if (query.trim()) searchParams.append('q', query);
+  if (page > 1) searchParams.append('page', page.toString());
+  if (limit !== 20) searchParams.append('limit', limit.toString());
 
-    const { data } = await api.get(`/tools/search/ai?${searchParams.toString()}`);
-    return data;
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(`filters[${key}]`, value.toString());
+    }
+  });
+
+  const { data } = await api.get(`/tools/search/ai?${searchParams.toString()}`);
+  return data;
 };
 
 
@@ -376,5 +374,7 @@ export const getSearchSuggestions = async (partialQuery: string): Promise<string
         return [];
     }
 };
+
+
 
 export default api;

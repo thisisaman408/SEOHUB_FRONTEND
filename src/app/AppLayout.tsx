@@ -56,8 +56,6 @@ export function AppLayout() {
 			</main>
 
 			<Footer />
-
-			{/* Login Modal */}
 			{activeModal === 'login' && (
 				<LoginPage
 					onShowSignup={handleShowSignup}
@@ -65,8 +63,6 @@ export function AppLayout() {
 					onClose={handleCloseModal}
 				/>
 			)}
-
-			{/* Signup Modal */}
 			{activeModal === 'signup' && (
 				<SignupPage
 					onShowLogin={handleShowLogin}
