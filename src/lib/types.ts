@@ -593,23 +593,6 @@ export interface SemanticSearchResult {
   summary: string;
   matchedFeatures: string[];
 }
-
-interface SemanticSearchApiResponse {
-  success: boolean;
-  data: {
-    results: Array<{
-      toolId: string;
-      score: number;
-      summary: string;
-      matchedFeatures: string[];
-    }>;
-    searchMeta: {
-      query: string;
-      searchTime: number;
-      totalResults: number;
-    };
-  };
-}
 export type SearchIntent = EnhancedQuery['intent'];
 export type SearchSortOption = SearchFilters['sortBy'];
 export type ToolCategory = 'ai' | 'seo' | 'content' | 'design' | 'analytics' | 'social' | 'automation' | 'productivity' | 'ecommerce' | 'other';
