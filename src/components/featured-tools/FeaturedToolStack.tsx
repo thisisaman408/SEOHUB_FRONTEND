@@ -1,8 +1,8 @@
+import { ToolCard } from '@/components/tools/ToolCard';
 import { type Tool } from '@/lib/types';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLayoutEffect, useRef } from 'react';
-import { ToolCard } from './ToolCard';
 
 gsap.registerPlugin(ScrollTrigger);
 

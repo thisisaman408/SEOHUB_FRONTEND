@@ -111,7 +111,7 @@ export interface GridTool {
 }
 
 // Import the PlaceholderLogo from a separate component file
-import { PlaceholderLogo } from '@/components/PlaceholderLogo';
+import { PlaceholderLogo } from '@/components/shared/PlaceholderLogo';
 
 export const allTools: GridTool[] = [
 	{

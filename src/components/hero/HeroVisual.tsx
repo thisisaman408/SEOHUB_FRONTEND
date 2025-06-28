@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+
 export function HeroVisual() {
 	return (
 		<div className="relative h-full w-full overflow-hidden">
