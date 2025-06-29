@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { colorMap } from '@/lib/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateToolRating } from '@/store/slice/toolsSlice';
+// import { updateToolRating } from '@/store/slice/toolsSlice';
 import { closeModal } from '@/store/slice/uiSlice';
 import { ArrowRight, BarChart, Zap } from 'lucide-react';
 
@@ -24,19 +24,19 @@ export function ToolDetailModal() {
 		dispatch(closeModal());
 	};
 
-	const handleToolRatingUpdate = (
-		toolId: string,
-		newAverageRating: number,
-		newNumberOfRatings: number
-	) => {
-		dispatch(
-			updateToolRating({
-				toolId,
-				averageRating: newAverageRating,
-				numberOfRatings: newNumberOfRatings,
-			})
-		);
-	};
+	// const handleToolRatingUpdate = (
+	// 	toolId: string,
+	// 	newAverageRating: number,
+	// 	newNumberOfRatings: number
+	// ) => {
+	// 	dispatch(
+	// 		updateToolRating({
+	// 			toolId,
+	// 			averageRating: newAverageRating,
+	// 			numberOfRatings: newNumberOfRatings,
+	// 		})
+	// 	);
+	// };
 
 	const handleVisitWebsite = () => {
 		if (selectedTool) {
@@ -109,13 +109,7 @@ export function ToolDetailModal() {
 									{selectedTool.tagline}
 								</DialogDescription>
 								<div className="mt-2">
-									<StarRating
-										toolId={selectedTool._id}
-										averageRating={selectedTool.averageRating}
-										numberOfRatings={selectedTool.numberOfRatings}
-										size="md"
-										onRatingUpdate={handleToolRatingUpdate}
-									/>
+									<StarRating toolId={selectedTool._id} size="md" />
 								</div>
 							</div>
 						</DialogHeader>

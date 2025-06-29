@@ -122,34 +122,6 @@ export function ToolDetailPage() {
 		setIsLightboxOpen(true);
 	}, []);
 
-	// const handleToolRatingUpdate = useCallback(
-	// 	async (
-	// 		toolId: string,
-	// 		newAverageRating: number,
-	// 		newNumberOfRatings: number
-	// 	) => {
-	// 		try {
-	// 			// dispatch(
-	// 			// 	updateToolRating({
-	// 			// 		toolId,
-	// 			// 		averageRating: newAverageRating,
-	// 			// 		numberOfRatings: newNumberOfRatings,
-	// 			// 	})
-	// 			// );
-	// 			const ratingData = {
-	// 				toolId,
-	// 				averageRating: newAverageRating,
-	// 				numberOfRatings: newNumberOfRatings,
-	// 				timestamp: Date.now(),
-	// 			};
-	// 			localStorage.setItem(`rating-${toolId}`, JSON.stringify(ratingData));
-	// 		} catch (error) {
-	// 			console.error('Failed to update rating:', error);
-	// 		}
-	// 	},
-	// 	[]
-	// );
-
 	const handleTabChange = (newTab: string) => {
 		setActiveTab(newTab);
 		setSearchParams({ tab: newTab });
@@ -188,10 +160,10 @@ export function ToolDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="min-h-screen bg-gray-950 flex items-center justify-center">
+			<div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
 				<div className="flex items-center space-x-3 text-gray-400">
 					<div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-					<span className="text-xl">Loading tool details...</span>
+					<span className="text-lg sm:text-xl">Loading tool details...</span>
 				</div>
 			</div>
 		);
@@ -199,17 +171,19 @@ export function ToolDetailPage() {
 
 	if (!tool) {
 		return (
-			<div className="min-h-screen bg-gray-950 flex items-center justify-center">
+			<div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
 				<motion.div
-					className="text-center"
+					className="text-center max-w-md mx-auto"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6 }}>
-					<div className="w-24 h-24 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
-						<ExternalLink className="h-12 w-12 text-gray-500" />
+					<div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
+						<ExternalLink className="h-8 w-8 sm:h-12 sm:w-12 text-gray-500" />
 					</div>
-					<h1 className="text-3xl font-bold text-white mb-4">Tool Not Found</h1>
-					<p className="text-gray-400 mb-8">
+					<h1 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+						Tool Not Found
+					</h1>
+					<p className="text-gray-400 mb-8 text-sm sm:text-base">
 						The tool you're looking for doesn't exist or has been removed.
 					</p>
 					<Link to="/">
@@ -225,35 +199,36 @@ export function ToolDetailPage() {
 
 	return (
 		<div className="min-h-screen bg-gray-950">
-			<div className="container mx-auto px-4 py-8">
+			<div className="container mx-auto px-4 py-4 sm:py-8">
 				{/* Header */}
 				<motion.div
-					className="mb-8"
+					className="mb-6 sm:mb-8"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6 }}>
-					<div className="flex items-center justify-between mb-6">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
 						<Link to="/tools">
 							<Button
 								variant="outline"
-								className="bg-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+								className="bg-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
 								<ChevronLeft className="mr-2 h-4 w-4" />
 								Back to Tools
 							</Button>
 						</Link>
-						<div className="flex items-center space-x-3">
+						<div className="flex items-center space-x-3 w-full sm:w-auto">
 							<Button
 								variant="outline"
-								className="bg-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+								className="bg-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white flex-1 sm:flex-none text-sm">
 								<Share2 className="mr-2 h-4 w-4" />
 								Share
 							</Button>
 							{tool.websiteUrl && (
 								<Button
 									onClick={() => window.open(tool.websiteUrl, '_blank')}
-									className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+									className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex-1 sm:flex-none text-sm">
 									<ExternalLink className="mr-2 h-4 w-4" />
-									Visit Website
+									<span className="hidden sm:inline">Visit Website</span>
+									<span className="sm:hidden">Visit</span>
 								</Button>
 							)}
 						</div>
@@ -262,18 +237,18 @@ export function ToolDetailPage() {
 
 				{/* Tool Header */}
 				<motion.div
-					className="mb-8"
+					className="mb-6 sm:mb-8"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6, delay: 0.2 }}>
 					<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
-						<CardContent className="p-8">
-							<div className="grid lg:grid-cols-3 gap-8">
+						<CardContent className="p-4 sm:p-6 lg:p-8">
+							<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 								{/* Left Column - Tool Info */}
 								<div className="lg:col-span-2">
-									<div className="flex items-start space-x-6 mb-6">
+									<div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
 										{/* Logo */}
-										<div className="w-20 h-20 rounded-2xl overflow-hidden bg-gray-700 ring-2 ring-gray-600 flex-shrink-0">
+										<div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-700 ring-2 ring-gray-600 flex-shrink-0 mx-auto sm:mx-0">
 											{tool.logoUrl ? (
 												<img
 													src={tool.logoUrl}
@@ -281,15 +256,15 @@ export function ToolDetailPage() {
 													className="w-full h-full object-cover"
 												/>
 											) : (
-												<div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+												<div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl sm:text-2xl">
 													{tool.name.charAt(0)}
 												</div>
 											)}
 										</div>
 
-										<div className="flex-1">
-											<div className="flex items-center space-x-3 mb-2">
-												<h1 className="text-4xl font-bold text-white">
+										<div className="ml-10 flex-1 text-center sm:text-left">
+											<div className=" flex flex-col sm:flex-row items-center sm:items-start space-y-2 sm:space-y-0 sm:space-x-3 mb-2">
+												<h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center sm:text-left">
 													{tool.name}
 												</h1>
 												{tool.isFeatured && (
@@ -299,29 +274,31 @@ export function ToolDetailPage() {
 													</Badge>
 												)}
 											</div>
-											<p className="text-xl text-gray-400 mb-4">
+											<p className="text-lg sm:text-xl text-gray-400 mb-4 text-center sm:text-left">
 												{tool.tagline}
 											</p>
-											<div className="flex items-center space-x-6">
+											<div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-6">
 												<div className="flex items-center space-x-2">
-													<Eye className="h-5 w-5 text-blue-400" />
-													<span className="text-gray-300">
+													<Eye className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
+													<span className="text-gray-300 text-sm sm:text-base">
 														{tool.analytics?.totalViews?.toLocaleString() || 0}{' '}
 														views
 													</span>
 												</div>
-												<StarRating toolId={tool._id} size="md" />
+												<div className="w-full sm:w-auto flex justify-center sm:justify-start">
+													<StarRating toolId={tool._id} size="md" />
+												</div>
 											</div>
 										</div>
 									</div>
 
 									{/* Tags */}
-									<div className="flex flex-wrap gap-2 mb-6">
+									<div className="flex flex-wrap gap-2 mb-6 justify-center sm:justify-start">
 										{tool.tags?.map((tag) => (
 											<Badge
 												key={tag}
 												variant="outline"
-												className="border-gray-600 text-gray-300 hover:bg-gray-800">
+												className="border-gray-600 text-gray-300 hover:bg-gray-800 text-xs sm:text-sm">
 												{tag}
 											</Badge>
 										))}
@@ -329,10 +306,10 @@ export function ToolDetailPage() {
 								</div>
 
 								{/* Right Column - Media Preview */}
-								<div className="lg:col-span-1">
+								<div className="lg:col-span-1 order-first lg:order-last">
 									{featuredMedia.length > 0 && (
 										<div className="space-y-4">
-											<div className="grid grid-cols-2 gap-3">
+											<div className="grid grid-cols-2 gap-2 sm:gap-3">
 												{featuredMedia.slice(0, 4).map((media, index) => (
 													<motion.div
 														key={media._id}
@@ -352,7 +329,7 @@ export function ToolDetailPage() {
 												<Button
 													variant="outline"
 													onClick={() => handleTabChange('media')}
-													className="w-full border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+													className="w-full border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white text-sm">
 													View All Media (+{featuredMedia.length - 4} more)
 												</Button>
 											)}
@@ -367,16 +344,16 @@ export function ToolDetailPage() {
 				{/* Videos Section */}
 				{videos.length > 0 && (
 					<motion.div
-						className="mb-8"
+						className="mb-6 sm:mb-8"
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.6, delay: 0.4 }}>
 						<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
-							<CardContent className="p-8">
-								<h3 className="text-2xl font-bold text-white mb-6">
+							<CardContent className="p-4 sm:p-6 lg:p-8">
+								<h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
 									Videos ({videos.length})
 								</h3>
-								<div className="grid gap-6">
+								<div className="grid gap-4 sm:gap-6">
 									{videos.map((video, index) => (
 										<motion.div
 											key={video._id}
@@ -389,12 +366,12 @@ export function ToolDetailPage() {
 												title={video.title}
 											/>
 											{video.title && (
-												<h4 className="font-semibold text-white mt-3">
+												<h4 className="font-semibold text-white mt-3 text-sm sm:text-base">
 													{video.title}
 												</h4>
 											)}
 											{video.description && (
-												<p className="text-gray-400 mt-1">
+												<p className="text-gray-400 mt-1 text-sm">
 													{video.description}
 												</p>
 											)}
@@ -414,43 +391,49 @@ export function ToolDetailPage() {
 					<Tabs
 						value={activeTab}
 						onValueChange={handleTabChange}
-						className="space-y-8">
+						className="space-y-6 sm:space-y-8">
 						<TabsList className="grid w-full grid-cols-3 lg:grid-cols-4 bg-gray-800/50 p-1 rounded-xl">
 							<TabsTrigger
 								value="overview"
-								className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg">
+								className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm">
 								Overview
 							</TabsTrigger>
 							<TabsTrigger
 								value="media"
-								className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg">
-								Media ({toolMedia.length})
+								className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm">
+								<span className="hidden sm:inline">
+									Media ({toolMedia.length})
+								</span>
+								<span className="sm:hidden">Media</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="comments"
-								className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg">
-								Comments ({totalComments})
+								className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm">
+								<span className="hidden sm:inline">
+									Comments ({totalComments})
+								</span>
+								<span className="sm:hidden">Comments</span>
 							</TabsTrigger>
 							{isOwner && (
 								<TabsTrigger
 									value="analytics"
-									className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg">
+									className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 rounded-lg text-xs sm:text-sm">
 									Analytics
 								</TabsTrigger>
 							)}
 						</TabsList>
 
-						<TabsContent value="overview" className="space-y-8">
-							<div className="grid lg:grid-cols-3 gap-8">
+						<TabsContent value="overview" className="space-y-6 sm:space-y-8">
+							<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 								{/* Main Description */}
 								<div className="lg:col-span-2">
 									<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
-										<CardContent className="p-8">
-											<h2 className="text-2xl font-bold text-white mb-6">
+										<CardContent className="p-4 sm:p-6 lg:p-8">
+											<h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
 												About {tool.name}
 											</h2>
 											<div className="prose prose-gray prose-invert max-w-none">
-												<p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+												<p className="text-gray-300 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
 													{tool.description}
 												</p>
 											</div>
@@ -458,23 +441,23 @@ export function ToolDetailPage() {
 											{/* Key Features */}
 											{tool.visual?.content &&
 												tool.visual.content.length > 0 && (
-													<div className="mt-8">
-														<h3 className="text-xl font-bold text-white mb-4">
+													<div className="mt-6 sm:mt-8">
+														<h3 className="text-lg sm:text-xl font-bold text-white mb-4">
 															Key Features
 														</h3>
-														<div className="grid gap-4">
+														<div className="grid gap-3 sm:gap-4">
 															{tool.visual.content.map((item, index) => (
 																<div
 																	key={index}
 																	className="flex items-start space-x-3">
-																	<div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+																	<div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
 																		{item.icon === 'zap' ? (
-																			<Zap className="h-4 w-4 text-blue-400" />
+																			<Zap className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
 																		) : (
-																			<BarChart className="h-4 w-4 text-green-400" />
+																			<BarChart className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
 																		)}
 																	</div>
-																	<p className="text-gray-300 leading-relaxed">
+																	<p className="text-gray-300 leading-relaxed text-sm sm:text-base">
 																		{item.text}
 																	</p>
 																</div>
@@ -489,53 +472,57 @@ export function ToolDetailPage() {
 								{/* Sidebar Info */}
 								<div className="lg:col-span-1">
 									<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
-										<CardContent className="p-6">
-											<h3 className="text-lg font-bold text-white mb-6">
+										<CardContent className="p-4 sm:p-6">
+											<h3 className="text-base sm:text-lg font-bold text-white mb-4 sm:mb-6">
 												Tool Information
 											</h3>
-											<div className="space-y-4">
+											<div className="space-y-3 sm:space-y-4">
 												<div className="flex items-center justify-between">
-													<span className="text-gray-400">Developer</span>
+													<span className="text-gray-400 text-sm">
+														Developer
+													</span>
 													<div className="flex items-center space-x-2">
-														<User className="h-4 w-4 text-gray-400" />
-														<span className="text-white font-medium">
+														<User className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+														<span className="text-white font-medium text-sm truncate max-w-32">
 															{tool.submittedBy?.companyName || 'Anonymous'}
 														</span>
 													</div>
 												</div>
 												<div className="flex items-center justify-between">
-													<span className="text-gray-400">Views</span>
+													<span className="text-gray-400 text-sm">Views</span>
 													<div className="flex items-center space-x-2">
-														<Eye className="h-4 w-4 text-blue-400" />
-														<span className="text-white font-medium">
+														<Eye className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+														<span className="text-white font-medium text-sm">
 															{tool.analytics?.totalViews?.toLocaleString() ||
 																0}
 														</span>
 													</div>
 												</div>
 												<div className="flex items-center justify-between">
-													<span className="text-gray-400">Comments</span>
+													<span className="text-gray-400 text-sm">
+														Comments
+													</span>
 													<div className="flex items-center space-x-2">
-														<MessageSquare className="h-4 w-4 text-green-400" />
-														<span className="text-white font-medium">
+														<MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
+														<span className="text-white font-medium text-sm">
 															{totalComments}
 														</span>
 													</div>
 												</div>
 												<div className="flex items-center justify-between">
-													<span className="text-gray-400">Rating</span>
+													<span className="text-gray-400 text-sm">Rating</span>
 													<div className="flex items-center space-x-2">
-														<Star className="h-4 w-4 text-yellow-400 fill-current" />
-														<span className="text-white font-medium">
-															{tool.averageRating?.toFixed(1) || 'N/A'}
+														<Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-current" />
+														<span className="text-white font-medium text-sm">
+															{((tool.averageRating || 0) + 0).toFixed(1)}
 														</span>
 													</div>
 												</div>
 												<div className="flex items-center justify-between">
-													<span className="text-gray-400">Added</span>
+													<span className="text-gray-400 text-sm">Added</span>
 													<div className="flex items-center space-x-2">
-														<Calendar className="h-4 w-4 text-purple-400" />
-														<span className="text-white font-medium">
+														<Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
+														<span className="text-white font-medium text-sm">
 															{new Date(tool.createdAt).toLocaleDateString()}
 														</span>
 													</div>
@@ -565,9 +552,9 @@ export function ToolDetailPage() {
 
 				{/* Lightbox */}
 				<Dialog open={isLightboxOpen} onOpenChange={closeLightbox}>
-					<DialogContent className="bg-gray-900 border-gray-700 max-w-4xl">
+					<DialogContent className="bg-gray-900 border-gray-700 max-w-[95vw] sm:max-w-4xl max-h-[95vh]">
 						<DialogHeader>
-							<DialogTitle className="text-white">
+							<DialogTitle className="text-white text-sm sm:text-base">
 								{featuredMedia[selectedMediaIndex]?.title || 'Media'}
 							</DialogTitle>
 						</DialogHeader>
@@ -575,7 +562,7 @@ export function ToolDetailPage() {
 							<img
 								src={featuredMedia[selectedMediaIndex]?.url}
 								alt={featuredMedia[selectedMediaIndex]?.title || 'Media'}
-								className="w-full rounded-lg"
+								className="w-full rounded-lg max-h-[70vh] object-contain"
 							/>
 							{featuredMedia.length > 1 && (
 								<>

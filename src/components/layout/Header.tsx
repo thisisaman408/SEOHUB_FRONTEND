@@ -17,33 +17,29 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 
 	return (
 		<header className="sticky top-0 z-50 w-full bg-gray-900/95 backdrop-blur-xl supports-[backdrop-filter]:bg-gray-900/90 border-b border-gray-800/50 shadow-lg shadow-black/5">
-			{/* Gradient overlay for depth */}
 			<div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 via-transparent to-gray-900/50 pointer-events-none" />
 
 			<div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex h-16 sm:h-18 items-center justify-between">
-					{/* Logo Section */}
 					<motion.div
 						className="flex items-center space-x-4"
 						initial={{ opacity: 0, x: -20 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ duration: 0.5 }}>
 						<Link to="/" className="flex items-center space-x-3 group">
-							{/* Enhanced Logo */}
 							<div className="relative">
 								<div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300 transform group-hover:scale-105">
-									<span className="text-white font-bold text-lg">ST</span>
+									<span className="text-white font-bold text-lg">GT</span>
 								</div>
-								{/* Glow effect */}
+
 								<div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-600 to-cyan-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300 -z-10" />
 							</div>
 							<span className="font-bold text-xl text-white hidden sm:block group-hover:text-blue-300 transition-colors duration-300">
-								SEO Tool Hub
+								GT Motion
 							</span>
 						</Link>
 					</motion.div>
 
-					{/* Navigation Links - Desktop */}
 					<motion.nav
 						className="hidden md:flex items-center space-x-8"
 						initial={{ opacity: 0, y: -10 }}
@@ -65,7 +61,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 						))}
 					</motion.nav>
 
-					{/* User Actions */}
 					<motion.div
 						className="flex items-center space-x-4"
 						initial={{ opacity: 0, x: 20 }}
@@ -73,7 +68,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 						transition={{ duration: 0.5, delay: 0.3 }}>
 						{user ? (
 							<div className="flex items-center space-x-3">
-								{/* Credits Display */}
 								<div className="hidden sm:flex items-center space-x-2 bg-gray-800/50 px-3 py-1.5 rounded-lg border border-gray-700/50">
 									<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
 									<span className="text-gray-300 text-sm font-medium">
@@ -97,8 +91,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 								</Button>
 							</div>
 						)}
-
-						{/* Mobile Menu Button */}
 						<Button
 							variant="ghost"
 							size="sm"
@@ -129,7 +121,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 					</motion.div>
 				</div>
 
-				{/* Mobile Menu */}
 				<AnimatePresence>
 					{isMobileMenuOpen && (
 						<motion.div
@@ -139,7 +130,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 							exit={{ opacity: 0, height: 0 }}
 							transition={{ duration: 0.3 }}>
 							<div className="py-6 space-y-4">
-								{/* Mobile Search */}
 								<div className="relative px-4">
 									<Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
 									<input
@@ -148,8 +138,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 										className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm text-white placeholder:text-gray-400"
 									/>
 								</div>
-
-								{/* Mobile Navigation */}
 								<nav className="px-4 space-y-2">
 									{[
 										{ to: '/tools', label: 'Tools' },
@@ -167,7 +155,6 @@ export function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
 									))}
 								</nav>
 
-								{/* Mobile Auth Buttons */}
 								{!user && (
 									<div className="px-4 pt-4 border-t border-gray-800/50 space-y-3">
 										<Button

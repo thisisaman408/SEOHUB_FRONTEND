@@ -11,8 +11,8 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { type Tool } from '@/lib/types';
-import { useAppDispatch } from '@/store/hooks';
-import { updateToolRating } from '@/store/slice/toolsSlice';
+// import { useAppDispatch } from '@/store/hooks';
+// import { updateToolRating } from '@/store/slice/toolsSlice';
 import { motion } from 'framer-motion';
 import {
 	ArrowUpRight,
@@ -37,9 +37,9 @@ interface ToolCardProps {
 export function ToolCard({
 	tool,
 	onCardClick,
-	onToolRatingUpdate,
-}: ToolCardProps) {
-	const dispatch = useAppDispatch();
+}: // onToolRatingUpdate,
+ToolCardProps) {
+	// const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const placeholderUrl = `https://placehold.co/64x64/374151/9CA3AF?text=${tool.name
 		.charAt(0)
@@ -53,20 +53,20 @@ export function ToolCard({
 		onCardClick();
 	};
 
-	const handleToolRatingUpdate = (
-		toolId: string,
-		newAverageRating: number,
-		newNumberOfRatings: number
-	) => {
-		dispatch(
-			updateToolRating({
-				toolId,
-				averageRating: newAverageRating,
-				numberOfRatings: newNumberOfRatings,
-			})
-		);
-		onToolRatingUpdate(toolId, newAverageRating, newNumberOfRatings);
-	};
+	// const handleToolRatingUpdate = (
+	// 	toolId: string,
+	// 	newAverageRating: number,
+	// 	newNumberOfRatings: number
+	// ) => {
+	// 	dispatch(
+	// 		updateToolRating({
+	// 			toolId,
+	// 			averageRating: newAverageRating,
+	// 			numberOfRatings: newNumberOfRatings,
+	// 		})
+	// 	);
+	// 	onToolRatingUpdate(toolId, newAverageRating, newNumberOfRatings);
+	// };
 
 	return (
 		<motion.div
@@ -122,13 +122,7 @@ export function ToolCard({
 
 							{/* Rating */}
 							<div className="flex items-center space-x-2 mt-2">
-								<StarRating
-									averageRating={tool.averageRating}
-									numberOfRatings={tool.numberOfRatings}
-									toolId={tool._id}
-									onRatingUpdate={handleToolRatingUpdate}
-									size="sm"
-								/>
+								<StarRating toolId={tool._id} size="sm" />
 								<span className="text-xs text-gray-500">
 									({tool.numberOfRatings} reviews)
 								</span>
