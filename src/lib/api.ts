@@ -1,4 +1,3 @@
-// src/lib/api.ts - Clean version without duplicates
 import axios from 'axios';
 import {
     type AdminStats,
@@ -376,5 +375,15 @@ export const getSearchSuggestions = async (partialQuery: string): Promise<string
 };
 
 
+export const trackClick = async (
+	toolId: string,
+	clickData: {
+		clickType?: 'website' | 'app_store' | 'google_play';
+		source?: 'direct' | 'search' | 'referral' | 'marketplace';
+	}
+): Promise<{ message: string }> => {
+	const { data } = await api.post(`/tools/${toolId}/click`, clickData);
+	return data;
+};
 
 export default api;

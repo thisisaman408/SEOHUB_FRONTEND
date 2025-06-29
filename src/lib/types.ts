@@ -98,22 +98,29 @@ export interface AuthContextType {
 // ==================== FORMS ====================
 
 export interface SubmitToolFormData {
-    name: string;
-    tagline: string;
-    description: string;
-    websiteUrl: string;
-    tags: string;
-    appStoreUrl?: string;
-    playStoreUrl?: string;
-    visual: {
-        color: string;
-        content: {
-            icon: string;
-            text: string;
-        }[];
-    };
+	name: string;
+	tagline: string;
+	description: string;
+	websiteUrl: string;
+	tags: string;
+	appStoreUrl?: string;
+	playStoreUrl?: string;
+	color: string; 
+	content: VisualElement[]; 
+	visual: {
+		color: string;
+		content: {
+			icon: string;
+			text: string;
+		}[];
+	};
 }
-
+export interface EditToolFormData {
+  name: string;
+  tagline: string;
+  description: string;
+  websiteUrl: string;
+}
 // ==================== COMMENTS ====================
 
 export interface Comment {
@@ -131,6 +138,7 @@ export interface Comment {
         upvotes: number;
         downvotes: number;
     };
+    userVote?: 'upvote' | 'downvote' | null; 
     reports: CommentReport[];
     editHistory: CommentEditHistory[];
     isEdited: boolean;
@@ -140,6 +148,7 @@ export interface Comment {
     createdAt: string;
     updatedAt: string;
 }
+
 
 export interface CommentReport {
     reportedBy: string;
@@ -206,14 +215,40 @@ export interface ToolView {
 }
 
 export interface ToolAnalytics {
-    period: string;
-    totalViews: number;
-    uniqueViews: number;
-    weeklyViews: number;
-    monthlyViews: number;
-    dailyBreakdown: DailyAnalytics[];
-    topCountries: CountryAnalytics[];
-    lastUpdated?: string;
+	period: string;
+	totalViews: number;
+	uniqueViews: number;
+	uniqueVisitors: number;
+	weeklyViews: number;
+	monthlyViews: number;
+
+	viewsChange: number;
+	visitorsChange: number;
+	ctrChange: number;
+	clicksChange: number;
+	
+	
+	externalClicks: number;
+	clickThroughRate: number;
+	
+
+	averageTimeOnPage: number;
+	bounceRate: number;
+	returnVisitors: number;
+	
+	
+	dailyData: DailyAnalytics[];
+	dailyBreakdown: DailyAnalytics[];
+	trafficSources: SourceAnalytics[];
+	topCountries: CountryAnalytics[];
+	
+	lastUpdated?: string;
+}
+
+export interface VisualElement {
+	type: 'feature' | 'benefit' | 'highlight';
+	icon: string;
+	text: string;
 }
 
 export interface DailyAnalytics {
@@ -310,10 +345,12 @@ export interface CommentModerationData {
 // ==================== UI & STYLING ====================
 
 export interface ColorStyle {
-    bg: string;
-    text: string;
-    border: string;
-    icon: string;
+	bg: string;
+	text: string;
+	border: string;
+	icon: string;
+	background: string; 
+	primary: string; 
 }
 
 export interface ColorMap {
@@ -415,38 +452,63 @@ export interface UseMediaReturn {
 // ==================== COLOR MAP CONSTANT ====================
 
 export const colorMap: ColorMap = {
-    blue: {
-        bg: 'bg-blue-500/20',
-        text: 'text-blue-500',
-        border: 'border-blue-500',
-        icon: 'text-blue-400',
-    },
-    green: {
-        bg: 'bg-green-500/20',
-        text: 'text-green-500',
-        border: 'border-green-500',
-        icon: 'text-green-400',
-    },
-    purple: {
-        bg: 'bg-purple-500/20',
-        text: 'text-purple-500',
-        border: 'border-purple-500',
-        icon: 'text-purple-400',
-    },
-    orange: {
-        bg: 'bg-orange-500/20',
-        text: 'text-orange-500',
-        border: 'border-orange-500',
-        icon: 'text-orange-400',
-    },
-    default: {
-        bg: 'bg-gray-500/20',
-        text: 'text-gray-500',
-        border: 'border-gray-500',
-        icon: 'text-gray-400',
-    },
+	blue: {
+		bg: 'bg-blue-500/20',
+		text: 'text-blue-500',
+		border: 'border-blue-500',
+		icon: 'text-blue-400',
+		background: '#1e3a8a', // Add this
+		primary: '#3b82f6', // Add this
+	},
+	green: {
+		bg: 'bg-green-500/20',
+		text: 'text-green-500',
+		border: 'border-green-500',
+		icon: 'text-green-400',
+		background: '#166534', // Add this
+		primary: '#22c55e', // Add this
+	},
+	purple: {
+		bg: 'bg-purple-500/20',
+		text: 'text-purple-500',
+		border: 'border-purple-500',
+		icon: 'text-purple-400',
+		background: '#6b21a8', // Add this
+		primary: '#a855f7', // Add this
+	},
+	orange: {
+		bg: 'bg-orange-500/20',
+		text: 'text-orange-500',
+		border: 'border-orange-500',
+		icon: 'text-orange-400',
+		background: '#c2410c', // Add this
+		primary: '#f97316', // Add this
+	},
+	red: {
+		bg: 'bg-red-500/20',
+		text: 'text-red-500',
+		border: 'border-red-500',
+		icon: 'text-red-400',
+		background: '#b91c1c', // Add this
+		primary: '#ef4444', // Add this
+	},
+	yellow: {
+		bg: 'bg-yellow-500/20',
+		text: 'text-yellow-500',
+		border: 'border-yellow-500',
+		icon: 'text-yellow-400',
+		background: '#ca8a04', // Add this
+		primary: '#eab308', // Add this
+	},
+	default: {
+		bg: 'bg-gray-500/20',
+		text: 'text-gray-500',
+		border: 'border-gray-500',
+		icon: 'text-gray-400',
+		background: '#374151', // Add this
+		primary: '#6b7280', // Add this
+	},
 };
-
 // ==================== CONSTANTS ====================
 
 export const COMMENT_SORT_OPTIONS = [

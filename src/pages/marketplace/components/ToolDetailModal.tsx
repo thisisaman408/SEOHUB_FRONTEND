@@ -113,8 +113,8 @@ export function ToolDetailModal() {
 										toolId={selectedTool._id}
 										averageRating={selectedTool.averageRating}
 										numberOfRatings={selectedTool.numberOfRatings}
-										size={24}
-										onRatingChange={handleToolRatingUpdate}
+										size="md"
+										onRatingUpdate={handleToolRatingUpdate}
 									/>
 								</div>
 							</div>

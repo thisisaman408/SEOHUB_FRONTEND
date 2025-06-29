@@ -20,16 +20,21 @@ export function useToolSubmissionForm() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState<SubmitToolFormData>({
-        name: '',
-        tagline: '',
-        description: '',
-        websiteUrl: '',
-        tags: '',
-        appStoreUrl: '',
-        playStoreUrl: '',
-        visual: { color: 'blue', content: [{ icon: 'zap', text: '' }] },
-    });
+const [formData, setFormData] = useState<SubmitToolFormData>({
+  name: '',
+  tagline: '',
+  description: '',
+  websiteUrl: '',
+  tags: '',
+  appStoreUrl: '',
+  playStoreUrl: '',
+  color: 'default',
+  content: [], 
+  visual: { 
+    color: 'default', 
+    content: [] 
+  },
+});
     
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -37,8 +42,22 @@ export function useToolSubmissionForm() {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value });
-    };
+            const { id, value } = e.target;
+            
+            if (id === 'content') {
+              
+                try {
+                const contentArray = JSON.parse(value);
+                setFormData(prev => ({ ...prev, content: contentArray }));
+                } catch {
+                // Handle parse error
+                }
+            } else if (id === 'color') {
+                setFormData(prev => ({ ...prev, color: value }));
+            } else {
+                setFormData(prev => ({ ...prev, [id]: value }));
+            }
+};
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

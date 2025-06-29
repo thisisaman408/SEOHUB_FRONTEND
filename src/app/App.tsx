@@ -7,6 +7,8 @@ import {
 	Routes,
 } from 'react-router-dom';
 import { ToolMarketplacePage } from '../pages/marketplace/ToolMarketplacePage';
+import { NotificationPage } from '../pages/notification/Notification';
+import { PricingPage } from '../pages/pricing/Pricing';
 import { MyToolsPage } from '../pages/tools/MyToolsPage';
 import { ToolDetailPage } from '../pages/tools/ToolDetailPage';
 import { ToolSubmissionPage } from '../pages/tools/ToolSubmissionPage';
@@ -28,6 +30,8 @@ function App() {
 						<Route path="/profile" element={<UserProfilePage />} />
 						<Route path="/tool/:toolSlug" element={<ToolDetailPage />} />
 						<Route path="*" element={<Navigate to="/" replace />} />
+						<Route path="/pricing" element={<PricingPage />} />
+						<Route path="/notifications" element={<NotificationPage />} />
 					</Route>
 				</Routes>
 			</Router>

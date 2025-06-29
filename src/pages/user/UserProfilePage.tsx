@@ -1,7 +1,7 @@
-// src/pages/user/UserProfilePage.tsx
 import { Card, CardContent } from '@/components/ui/card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearError, updateProfile } from '@/store/slice/authSlice';
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ProfileForm } from './components/ProfileForm';
@@ -14,21 +14,12 @@ export function UserProfilePage() {
 		isLoading,
 		isUpdatingProfile,
 	} = useAppSelector((state) => state.auth);
-
-	// Local state for editing mode
 	const [isEditing, setIsEditing] = useState(false);
-
-	// Form data state
 	const [formData, setFormData] = useState({
 		companyName: profile?.companyName || '',
 	});
-
 	const [logoPreview, setLogoPreview] = useState<string | null>(null);
-
-	// File input ref
 	const fileInputRef = useRef<HTMLInputElement>(null!);
-
-	// Update form data when profile changes
 	useEffect(() => {
 		if (profile) {
 			setFormData({
@@ -36,16 +27,11 @@ export function UserProfilePage() {
 			});
 		}
 	}, [profile]);
-
-	// Clear any errors when component mounts
 	useEffect(() => {
 		dispatch(clearError());
 	}, [dispatch]);
-
-	// Handle editing toggle
 	const handleEditToggle = () => {
 		if (isEditing) {
-			// Cancel editing - reset form data
 			setFormData({
 				companyName: profile?.companyName || '',
 			});
@@ -111,49 +97,103 @@ export function UserProfilePage() {
 
 	if (combinedLoading && !profile) {
 		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center space-y-4">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-					<p className="text-muted-foreground">Loading Profile...</p>
-				</div>
+			<div className="min-h-screen bg-gray-950 flex items-center justify-center">
+				<motion.div
+					className="flex items-center space-x-3 text-gray-400"
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ duration: 0.5 }}>
+					<div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+					<span className="text-xl">Loading Profile...</span>
+				</motion.div>
 			</div>
 		);
 	}
 
 	if (!profile) {
 		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center space-y-4">
-					<p className="text-muted-foreground">
+			<div className="min-h-screen bg-gray-950 flex items-center justify-center">
+				<motion.div
+					className="text-center"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}>
+					<div className="w-24 h-24 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
+						<svg
+							className="h-12 w-12 text-gray-500"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+					</div>
+					<h1 className="text-3xl font-bold text-white mb-4">
+						Profile Not Found
+					</h1>
+					<p className="text-gray-400">
 						Could not load your profile. Please try refreshing the page.
 					</p>
-				</div>
+				</motion.div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="container mx-auto px-4 py-8 max-w-2xl">
-			<Card>
-				<ProfileHeader
-					isEditing={isEditing}
-					isLoading={combinedLoading}
-					onEditToggle={handleEditToggle}
-				/>
-				<CardContent>
-					<ProfileForm
-						profile={profile}
-						isEditing={isEditing}
-						isLoading={combinedLoading}
-						formData={formData}
-						logoPreview={logoPreview}
-						fileInputRef={fileInputRef}
-						onInputChange={handleInputChange}
-						onFileChange={handleFileChange}
-						onSaveChanges={handleSaveChanges}
-					/>
-				</CardContent>
-			</Card>
+		<div className="min-h-screen bg-gray-950">
+			{/* Background Elements */}
+			<div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5" />
+			<div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-full blur-3xl transform translate-x-48 -translate-y-48" />
+
+			<div className="relative container mx-auto px-4 py-8">
+				{/* Header */}
+				<motion.div
+					className="mb-8"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}>
+					<div className="text-center mb-8">
+						<h1 className="text-4xl font-bold text-white mb-2">
+							Profile Settings
+						</h1>
+						<p className="text-xl text-gray-400">
+							Manage your account information and preferences
+						</p>
+					</div>
+				</motion.div>
+
+				{/* Main Profile Card */}
+				<motion.div
+					className="max-w-4xl mx-auto"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.2 }}>
+					<Card className="bg-gray-900/50 backdrop-blur-xl border-gray-800/50 shadow-2xl">
+						<ProfileHeader
+							isEditing={isEditing}
+							isLoading={combinedLoading}
+							onEditToggle={handleEditToggle}
+						/>
+						<CardContent className="p-8">
+							<ProfileForm
+								profile={profile}
+								isEditing={isEditing}
+								isLoading={combinedLoading}
+								formData={formData}
+								logoPreview={logoPreview}
+								fileInputRef={fileInputRef}
+								onInputChange={handleInputChange}
+								onFileChange={handleFileChange}
+								onSaveChanges={handleSaveChanges}
+							/>
+						</CardContent>
+					</Card>
+				</motion.div>
+			</div>
 		</div>
 	);
 }

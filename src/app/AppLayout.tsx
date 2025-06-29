@@ -28,10 +28,12 @@ export function AppLayout() {
 	};
 
 	const handleOpenLogin = () => {
+		console.log('Opening login modal'); // Debug log
 		setActiveModal('login');
 	};
 
 	const handleOpenSignup = () => {
+		console.log('Opening signup modal'); // Debug log
 		setActiveModal('signup');
 	};
 
@@ -48,28 +50,28 @@ export function AppLayout() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
+		<div className="min-h-screen flex flex-col bg-gray-950">
 			<Header onOpenLogin={handleOpenLogin} onOpenSignup={handleOpenSignup} />
-
 			<main className="flex-1">
 				<Outlet />
 			</main>
-
 			<Footer />
-			{activeModal === 'login' && (
-				<LoginPage
-					onShowSignup={handleShowSignup}
-					onLoginSuccess={handleLoginSuccess}
-					onClose={handleCloseModal}
-				/>
-			)}
-			{activeModal === 'signup' && (
-				<SignupPage
-					onShowLogin={handleShowLogin}
-					onSignupSuccess={handleSignupSuccess}
-					onClose={handleCloseModal}
-				/>
-			)}
+
+			{/* Login Modal */}
+			<LoginPage
+				isOpen={activeModal === 'login'}
+				onShowSignup={handleShowSignup}
+				onLoginSuccess={handleLoginSuccess}
+				onClose={handleCloseModal}
+			/>
+
+			{/* Signup Modal */}
+			<SignupPage
+				isOpen={activeModal === 'signup'}
+				onShowLogin={handleShowLogin}
+				onSignupSuccess={handleSignupSuccess}
+				onClose={handleCloseModal}
+			/>
 		</div>
 	);
 }

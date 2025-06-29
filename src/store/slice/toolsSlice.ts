@@ -1,15 +1,10 @@
 import { getAllTools, getToolBySlug, rateTool, searchToolsWithAI } from '@/lib/api';
-import { type SearchFilters, type SearchResponse, type Tool } from '@/lib/types';
+import { type EditToolFormData, type SearchFilters, type SearchResponse, type Tool } from '@/lib/types';
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface EditModalData {
   isEditing: boolean;
-  formData: {
-    name: string;
-    tagline: string;
-    description: string;
-    websiteUrl: string;
-  };
+  formData: EditToolFormData;
   logoFile: File | null;
   logoPreview: string | null;
 }
@@ -42,11 +37,11 @@ const initialState: ToolsState = {
   error: null,
   editModalData: {
     isEditing: false,
-    formData: {
+     formData: {
       name: '',
       tagline: '',
       description: '',
-      websiteUrl: '',
+      websiteUrl: '', 
     },
     logoFile: null,
     logoPreview: null,

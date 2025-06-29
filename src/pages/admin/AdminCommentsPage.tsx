@@ -32,13 +32,14 @@ import {
 	moderateCommentThunk,
 } from '@/store/slice/adminSlice';
 import { formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
 import {
-	AlertTriangle,
 	Check,
 	Clock,
 	Eye,
 	Flag,
 	MessageSquare,
+	Shield,
 	X,
 } from 'lucide-react';
 import { useCallback, useEffect } from 'react';
@@ -95,287 +96,447 @@ export function AdminCommentsPage() {
 	const getReportReasonBadgeColor = (reason: string) => {
 		switch (reason) {
 			case 'spam':
-				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+				return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
 			case 'inappropriate':
-				return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+				return 'bg-red-500/20 text-red-400 border-red-500/30';
 			case 'harassment':
-				return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+				return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
 			case 'misinformation':
-				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+				return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
 			default:
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+				return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
 		}
 	};
 
 	return (
-		<div className="space-y-8">
-			<div>
-				<h1 className="text-3xl font-bold mb-2">Comment Moderation</h1>
-				<p className="text-muted-foreground">
-					Review and moderate reported comments from users
-				</p>
-			</div>
+		<div className="min-h-screen bg-gray-950 p-6">
+			<div className="max-w-7xl mx-auto space-y-8">
+				{/* Header */}
+				<motion.div
+					className="text-center space-y-4"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}>
+					<div className="flex items-center justify-center space-x-3 mb-4">
+						<div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+							<Shield className="h-6 w-6 text-white" />
+						</div>
+					</div>
+					<h1 className="text-4xl font-bold text-white">Comment Moderation</h1>
+					<p className="text-xl text-gray-400 max-w-2xl mx-auto">
+						Review and moderate reported comments from users
+					</p>
+				</motion.div>
 
-			<Tabs defaultValue="reported" className="w-full">
-				<TabsList className="mb-6">
-					<TabsTrigger value="reported" className="flex items-center gap-2">
-						<Flag className="h-4 w-4" />
-						Reported Comments ({reportedComments.length})
-					</TabsTrigger>
-				</TabsList>
-
-				<TabsContent value="reported">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<AlertTriangle className="h-5 w-5 text-orange-500" />
-								Reported Comments
-							</CardTitle>
-							<CardDescription>
-								Comments that have been flagged by users and require moderation
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							{isLoading ? (
-								<div className="text-center py-12">
-									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-									<p className="text-muted-foreground">
-										Loading reported comments...
+				{/* Stats Cards */}
+				<motion.div
+					className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.2 }}>
+					<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
+						<CardContent className="p-6">
+							<div className="flex items-center justify-between">
+								<div>
+									<p className="text-sm text-gray-400">Total Reports</p>
+									<p className="text-3xl font-bold text-white">
+										{reportedComments.length}
 									</p>
 								</div>
-							) : reportedComments.length > 0 ? (
-								<div className="border rounded-md overflow-hidden">
-									<Table>
-										<TableHeader>
-											<TableRow>
-												<TableHead>Comment</TableHead>
-												<TableHead>Author</TableHead>
-												<TableHead>Reports</TableHead>
-												<TableHead>Tool</TableHead>
-												<TableHead>Date</TableHead>
-												<TableHead>Actions</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{reportedComments.map((comment) => (
-												<TableRow key={comment._id}>
-													<TableCell className="max-w-xs">
-														<p className="line-clamp-2 text-sm">
-															{comment.content}
-														</p>
-														{comment.isEdited && (
-															<Badge variant="outline" className="mt-1 text-xs">
-																Edited
-															</Badge>
-														)}
-													</TableCell>
-													<TableCell>
-														<div className="flex items-center gap-2">
-															<Avatar className="w-6 h-6">
-																<AvatarImage
-																	src={comment.user.companyLogoUrl}
-																/>
-																<AvatarFallback className="text-xs">
-																	{comment.user.companyName?.charAt(0)}
-																</AvatarFallback>
-															</Avatar>
-															<span className="text-sm">
-																{comment.user.companyName}
-															</span>
-														</div>
-													</TableCell>
-													<TableCell>
-														<div className="space-y-1">
-															{comment.reports
-																.slice(0, 2)
-																.map((report, index) => (
-																	<Badge
-																		key={index}
-																		variant="outline"
-																		className={`text-xs ${getReportReasonBadgeColor(
-																			report.reason
-																		)}`}>
-																		{report.reason}
-																	</Badge>
-																))}
-															{comment.reports.length > 2 && (
-																<Badge variant="outline" className="text-xs">
-																	+{comment.reports.length - 2} more
-																</Badge>
-															)}
-														</div>
-													</TableCell>
-													<TableCell>
-														<span className="text-sm text-muted-foreground">
-															{typeof comment.tool === 'string'
-																? `Tool #${comment.tool.slice(-6)}`
-																: comment.tool.name ||
-																  `Tool #${comment.tool._id.slice(-6)}`}
-														</span>
-													</TableCell>
-													<TableCell>
-														<div className="flex items-center gap-1 text-sm text-muted-foreground">
-															<Clock className="h-3 w-3" />
-															{formatDistanceToNow(
-																new Date(comment.createdAt),
-																{ addSuffix: true }
-															)}
-														</div>
-													</TableCell>
-													<TableCell>
-														<div className="flex items-center gap-2">
-															<Button
-																variant="outline"
-																size="sm"
-																onClick={() => viewCommentDetails(comment._id)}>
-																<Eye className="h-3 w-3" />
-															</Button>
-															<Button
-																variant="outline"
-																size="sm"
-																className="text-green-600 hover:text-green-700 hover:border-green-600"
-																onClick={() =>
-																	handleModerate(comment._id, 'approved')
-																}
-																disabled={moderatingId === comment._id}>
-																<Check className="h-3 w-3" />
-															</Button>
-															<Button
-																variant="outline"
-																size="sm"
-																className="text-red-600 hover:text-red-700 hover:border-red-600"
-																onClick={() =>
-																	handleModerate(comment._id, 'rejected')
-																}
-																disabled={moderatingId === comment._id}>
-																<X className="h-3 w-3" />
-															</Button>
-														</div>
-													</TableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</div>
-							) : (
-								<div className="text-center py-12">
-									<MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-									<h3 className="text-lg font-medium mb-2">
-										No reported comments
-									</h3>
-									<p className="text-muted-foreground">
-										All comments are clean! No reports to review at the moment.
-									</p>
-								</div>
-							)}
+								<Flag className="h-8 w-8 text-red-400" />
+							</div>
 						</CardContent>
 					</Card>
-				</TabsContent>
-			</Tabs>
+					<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
+						<CardContent className="p-6">
+							<div className="flex items-center justify-between">
+								<div>
+									<p className="text-sm text-gray-400">Pending Review</p>
+									<p className="text-3xl font-bold text-yellow-400">
+										{
+											reportedComments.filter((c) => c.status === 'pending')
+												.length
+										}
+									</p>
+								</div>
+								<Clock className="h-8 w-8 text-yellow-400" />
+							</div>
+						</CardContent>
+					</Card>
+					<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
+						<CardContent className="p-6">
+							<div className="flex items-center justify-between">
+								<div>
+									<p className="text-sm text-gray-400">Resolved Today</p>
+									<p className="text-3xl font-bold text-green-400">
+										{
+											reportedComments.filter((c) => c.status !== 'pending')
+												.length
+										}
+									</p>
+								</div>
+								<Check className="h-8 w-8 text-green-400" />
+							</div>
+						</CardContent>
+					</Card>
+				</motion.div>
 
-			{/* Comment Details Modal */}
-			<Dialog
-				open={!!selectedComment}
-				onOpenChange={(open) => !open && handleCloseDialog()}>
-				<DialogContent className="max-w-2xl">
-					{selectedComment && (
-						<>
-							<DialogHeader>
-								<DialogTitle className="flex items-center gap-2">
-									<Flag className="h-5 w-5" />
-									Comment Details
-								</DialogTitle>
-								<DialogDescription>
-									Review the full comment and all reports before making a
-									moderation decision
-								</DialogDescription>
-							</DialogHeader>
+				{/* Main Content */}
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.4 }}>
+					<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
+						<CardHeader className="border-b border-gray-800/50">
+							<CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+								<MessageSquare className="h-6 w-6 text-blue-400" />
+								<span>Reported Comments</span>
+							</CardTitle>
+							<CardDescription className="text-gray-400">
+								Review and take action on comments reported by the community
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="p-0">
+							<Tabs defaultValue="pending" className="w-full">
+								<TabsList className="w-full justify-start border-b border-gray-800/50 bg-transparent rounded-none h-auto p-0">
+									<TabsTrigger
+										value="pending"
+										className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 border-b-2 border-transparent data-[state=active]:border-blue-500 rounded-none px-6 py-4">
+										Pending (
+										{
+											reportedComments.filter((c) => c.status === 'pending')
+												.length
+										}
+										)
+									</TabsTrigger>
+									<TabsTrigger
+										value="approved"
+										className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 border-b-2 border-transparent data-[state=active]:border-green-500 rounded-none px-6 py-4">
+										Approved (
+										{
+											reportedComments.filter((c) => c.status === 'approved')
+												.length
+										}
+										)
+									</TabsTrigger>
+									<TabsTrigger
+										value="rejected"
+										className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 border-b-2 border-transparent data-[state=active]:border-red-500 rounded-none px-6 py-4">
+										Rejected (
+										{
+											reportedComments.filter((c) => c.status === 'rejected')
+												.length
+										}
+										)
+									</TabsTrigger>
+								</TabsList>
 
-							<div className="space-y-6">
-								{/* Comment Content */}
-								<div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-									<div className="flex items-start gap-3 mb-3">
-										<Avatar className="w-8 h-8">
-											<AvatarImage src={selectedComment.user.companyLogoUrl} />
-											<AvatarFallback>
-												{selectedComment.user.companyName?.charAt(0)}
-											</AvatarFallback>
-										</Avatar>
-										<div>
-											<p className="font-medium">
-												{selectedComment.user.companyName}
+								<TabsContent value="pending" className="mt-0">
+									{isLoading ? (
+										<div className="flex items-center justify-center py-16">
+											<div className="flex items-center space-x-3 text-gray-400">
+												<div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+												<span>Loading reported comments...</span>
+											</div>
+										</div>
+									) : reportedComments.filter((c) => c.status === 'pending')
+											.length === 0 ? (
+										<div className="text-center py-16">
+											<div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+												<Check className="h-10 w-10 text-green-400" />
+											</div>
+											<h3 className="text-xl font-bold text-gray-400 mb-2">
+												All Clear!
+											</h3>
+											<p className="text-gray-500">
+												All comments are clean! No reports to review at the
+												moment.
 											</p>
-											<p className="text-sm text-muted-foreground">
-												{formatDistanceToNow(
-													new Date(selectedComment.createdAt),
-													{ addSuffix: true }
-												)}
+										</div>
+									) : (
+										<div className="overflow-x-auto">
+											<Table>
+												<TableHeader>
+													<TableRow className="border-gray-800/50 hover:bg-gray-800/30">
+														<TableHead className="text-gray-300">
+															Comment
+														</TableHead>
+														<TableHead className="text-gray-300">
+															Author
+														</TableHead>
+														<TableHead className="text-gray-300">
+															Report Reason
+														</TableHead>
+														<TableHead className="text-gray-300">
+															Reported
+														</TableHead>
+														<TableHead className="text-gray-300">
+															Actions
+														</TableHead>
+													</TableRow>
+												</TableHeader>
+												<TableBody>
+													{reportedComments
+														.filter((comment) => comment.status === 'pending')
+														.map((comment) => (
+															<TableRow
+																key={comment._id}
+																className="border-gray-800/50 hover:bg-gray-800/30">
+																<TableCell className="max-w-md">
+																	<div className="space-y-2">
+																		<p className="text-gray-300 line-clamp-2">
+																			{comment.content}
+																		</p>
+																		<Button
+																			variant="link"
+																			size="sm"
+																			onClick={() =>
+																				viewCommentDetails(comment._id)
+																			}
+																			className="p-0 h-auto text-blue-400 hover:text-blue-300">
+																			<Eye className="h-3 w-3 mr-1" />
+																			View Details
+																		</Button>
+																	</div>
+																</TableCell>
+																<TableCell>
+																	<div className="flex items-center space-x-3">
+																		<Avatar className="h-8 w-8">
+																			<AvatarImage
+																				src={comment?.user?.companyLogoUrl}
+																			/>
+																			<AvatarFallback className="bg-gray-700 text-gray-300">
+																				{comment.user?.companyName?.[0] || 'U'}
+																			</AvatarFallback>
+																		</Avatar>
+																		<span className="text-gray-300">
+																			{comment.user?.companyName || 'Anonymous'}
+																		</span>
+																	</div>
+																</TableCell>
+																<TableCell>
+																	<Badge
+																		className={getReportReasonBadgeColor(
+																			comment.content
+																		)}>
+																		{comment.content}
+																	</Badge>
+																</TableCell>
+																<TableCell className="text-gray-400">
+																	{formatDistanceToNow(
+																		new Date(comment.createdAt),
+																		{ addSuffix: true }
+																	)}
+																</TableCell>
+																<TableCell>
+																	<div className="flex items-center space-x-2">
+																		<Button
+																			size="sm"
+																			onClick={() =>
+																				handleModerate(comment._id, 'approved')
+																			}
+																			disabled={moderatingId === comment._id}
+																			className="bg-green-600 hover:bg-green-700 text-white">
+																			<Check className="h-3 w-3 mr-1" />
+																			Approve
+																		</Button>
+																		<Button
+																			size="sm"
+																			variant="destructive"
+																			onClick={() =>
+																				handleModerate(comment._id, 'rejected')
+																			}
+																			disabled={moderatingId === comment._id}
+																			className="bg-red-600 hover:bg-red-700">
+																			<X className="h-3 w-3 mr-1" />
+																			Reject
+																		</Button>
+																	</div>
+																</TableCell>
+															</TableRow>
+														))}
+												</TableBody>
+											</Table>
+										</div>
+									)}
+								</TabsContent>
+
+								<TabsContent value="approved">
+									<div className="overflow-x-auto">
+										<Table>
+											<TableHeader>
+												<TableRow className="border-gray-800/50">
+													<TableHead className="text-gray-300">
+														Comment
+													</TableHead>
+													<TableHead className="text-gray-300">
+														Author
+													</TableHead>
+													<TableHead className="text-gray-300">
+														Approved
+													</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{reportedComments
+													.filter((comment) => comment.status === 'approved')
+													.map((comment) => (
+														<TableRow
+															key={comment._id}
+															className="border-gray-800/50 hover:bg-gray-800/30">
+															<TableCell className="text-gray-300">
+																{comment.content}
+															</TableCell>
+															<TableCell className="text-gray-300">
+																{comment.user?.companyName || 'Anonymous'}
+															</TableCell>
+															<TableCell className="text-gray-400">
+																{formatDistanceToNow(
+																	new Date(comment.updatedAt),
+																	{ addSuffix: true }
+																)}
+															</TableCell>
+														</TableRow>
+													))}
+											</TableBody>
+										</Table>
+									</div>
+								</TabsContent>
+
+								<TabsContent value="rejected">
+									<div className="overflow-x-auto">
+										<Table>
+											<TableHeader>
+												<TableRow className="border-gray-800/50">
+													<TableHead className="text-gray-300">
+														Comment
+													</TableHead>
+													<TableHead className="text-gray-300">
+														Author
+													</TableHead>
+													<TableHead className="text-gray-300">
+														Rejected
+													</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{reportedComments
+													.filter((comment) => comment.status === 'rejected')
+													.map((comment) => (
+														<TableRow
+															key={comment._id}
+															className="border-gray-800/50 hover:bg-gray-800/30">
+															<TableCell className="text-gray-300 opacity-60">
+																{comment.content}
+															</TableCell>
+															<TableCell className="text-gray-300">
+																{comment.user?.companyName || 'Anonymous'}
+															</TableCell>
+															<TableCell className="text-gray-400">
+																{formatDistanceToNow(
+																	new Date(comment.updatedAt),
+																	{ addSuffix: true }
+																)}
+															</TableCell>
+														</TableRow>
+													))}
+											</TableBody>
+										</Table>
+									</div>
+								</TabsContent>
+							</Tabs>
+						</CardContent>
+					</Card>
+				</motion.div>
+
+				{/* Comment Details Dialog */}
+				<Dialog open={!!selectedComment} onOpenChange={handleCloseDialog}>
+					<DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+						<DialogHeader>
+							<DialogTitle className="text-xl font-bold text-white">
+								Comment Details
+							</DialogTitle>
+							<DialogDescription className="text-gray-400">
+								Full comment information and moderation options
+							</DialogDescription>
+						</DialogHeader>
+						{selectedComment && (
+							<div className="space-y-6">
+								<div className="space-y-4">
+									<div>
+										<h4 className="text-sm font-medium text-gray-300 mb-2">
+											Comment Content
+										</h4>
+										<div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
+											<p className="text-gray-300 leading-relaxed">
+												{selectedComment.content}
 											</p>
 										</div>
 									</div>
-									<p className="text-sm leading-relaxed">
-										{selectedComment.content}
-									</p>
-								</div>
-
-								{/* Reports */}
-								<div>
-									<h4 className="font-medium mb-3">
-										Reports ({selectedComment.reports.length})
-									</h4>
-									<div className="space-y-3">
-										{selectedComment.reports.map((report, index) => (
-											<div key={index} className="border rounded-lg p-3">
-												<div className="flex items-center justify-between mb-2">
-													<Badge
-														className={getReportReasonBadgeColor(
-															report.reason
-														)}>
-														{report.reason}
-													</Badge>
-													<span className="text-xs text-muted-foreground">
-														{formatDistanceToNow(new Date(report.reportedAt), {
-															addSuffix: true,
-														})}
-													</span>
-												</div>
-												{report.description && (
-													<p className="text-sm text-muted-foreground">
-														{report.description}
-													</p>
-												)}
+									<div className="grid grid-cols-2 gap-4">
+										<div>
+											<h4 className="text-sm font-medium text-gray-300 mb-2">
+												Author
+											</h4>
+											<div className="flex items-center space-x-3">
+												<Avatar>
+													<AvatarImage
+														src={selectedComment.user?.companyLogoUrl}
+													/>
+													<AvatarFallback className="bg-gray-700 text-gray-300">
+														{selectedComment.user?.companyName?.[0] || 'U'}
+													</AvatarFallback>
+												</Avatar>
+												<span className="text-gray-300">
+													{selectedComment.user?.companyName || 'Anonymous'}
+												</span>
 											</div>
-										))}
+										</div>
+										<div>
+											<h4 className="text-sm font-medium text-gray-300 mb-2">
+												Report Reason
+											</h4>
+											<Badge
+												className={getReportReasonBadgeColor(
+													selectedComment.content
+												)}>
+												{selectedComment.content}
+											</Badge>
+										</div>
 									</div>
 								</div>
-
-								{/* Action Buttons */}
-								<div className="flex gap-3 pt-4 border-t">
+								<div className="flex items-center justify-end space-x-3">
 									<Button
-										className="flex-1"
-										onClick={() =>
-											handleModerate(selectedComment._id, 'approved')
-										}
-										disabled={moderatingId === selectedComment._id}>
+										variant="outline"
+										onClick={handleCloseDialog}
+										className="border-gray-600 text-gray-300 hover:bg-gray-800">
+										Close
+									</Button>
+									<Button
+										onClick={() => {
+											handleModerate(selectedComment._id, 'approved');
+											handleCloseDialog();
+										}}
+										className="bg-green-600 hover:bg-green-700">
 										<Check className="h-4 w-4 mr-2" />
-										Approve Comment
+										Approve
 									</Button>
 									<Button
 										variant="destructive"
-										className="flex-1"
-										onClick={() =>
-											handleModerate(selectedComment._id, 'rejected')
-										}
-										disabled={moderatingId === selectedComment._id}>
+										onClick={() => {
+											handleModerate(selectedComment._id, 'rejected');
+											handleCloseDialog();
+										}}
+										className="bg-red-600 hover:bg-red-700">
 										<X className="h-4 w-4 mr-2" />
-										Reject Comment
+										Reject
 									</Button>
 								</div>
 							</div>
-						</>
-					)}
-				</DialogContent>
-			</Dialog>
+						)}
+					</DialogContent>
+				</Dialog>
+			</div>
 		</div>
 	);
 }

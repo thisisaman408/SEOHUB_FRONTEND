@@ -15,7 +15,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { useAuth } from '@/context/AuthContext';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { deleteTool, updateToolStatus } from '@/lib/api';
 import { type Tool } from '@/lib/types';
@@ -33,10 +32,14 @@ import { openConfirmDialog } from '@/store/slice/uiSlice';
 import { isAxiosError } from 'axios';
 import { motion, useAnimation } from 'framer-motion';
 import {
+	Activity,
+	BarChart3,
 	Check,
+	Crown,
 	List,
 	Loader2,
 	Rocket,
+	Star,
 	ThumbsUp,
 	Trash2,
 	Users,
@@ -48,17 +51,12 @@ import { toast } from 'sonner';
 type FilterType = 'pending' | 'approved' | 'rejected' | 'all';
 
 export function AdminDashboardPage() {
-	const { logout } = useAuth();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const dispatch = useAppDispatch();
-
-	// ✅ Removed unused 'tools' from destructuring
 	const { stats, isLoading } = useAppSelector((state) => state.admin);
-
 	const [displayedTools, setDisplayedTools] = useState<Tool[]>([]);
 	const [activeFilter, setActiveFilter] = useState<FilterType>('pending');
 	const [isUpdating, setIsUpdating] = useState<string | null>(null);
-
 	const controls = useAnimation();
 	const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -78,7 +76,6 @@ export function AdminDashboardPage() {
 		fetchInitialData();
 	}, [fetchInitialData]);
 
-	// ✅ Removed unused 'initialLoad' parameter
 	const fetchToolsByFilter = useCallback(
 		async (filter: FilterType) => {
 			try {
@@ -213,52 +210,60 @@ export function AdminDashboardPage() {
 		value,
 		icon,
 		filter,
+		color = 'blue',
 	}: {
 		title: string;
 		value: number | string;
 		icon: React.ReactNode;
 		filter: FilterType;
+		color?: string;
 	}) => (
-		<Card
-			onClick={() => handleFilterClick(filter)}
-			className={`cursor-pointer transition-all ${
-				activeFilter === filter ? 'border-primary' : ''
-			}`}>
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-				<CardTitle className="text-sm font-medium">{title}</CardTitle>
-				{icon}
-			</CardHeader>
-			<CardContent>
-				<div className="text-2xl font-bold">{value}</div>
-			</CardContent>
-		</Card>
+		<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+			<Card
+				onClick={() => handleFilterClick(filter)}
+				className={`cursor-pointer transition-all duration-300 bg-gray-900/50 backdrop-blur-sm border-gray-800/50 hover:bg-gray-800/70 hover:shadow-lg ${
+					activeFilter === filter
+						? `ring-2 ring-${color}-500/50 shadow-${color}-500/20`
+						: ''
+				}`}>
+				<CardContent className="p-6">
+					<div className="flex items-center justify-between">
+						<div>
+							<p className="text-sm font-medium text-gray-400">{title}</p>
+							<p className="text-3xl font-bold text-white">{value}</p>
+						</div>
+						<div className={`text-${color}-400`}>{icon}</div>
+					</div>
+				</CardContent>
+			</Card>
+		</motion.div>
 	);
 
 	const ToolActions = ({ tool }: { tool: Tool }) => (
-		<div className="text-right space-x-2 flex justify-end">
+		<div className="flex items-center space-x-2">
 			{tool.status === 'pending' && (
 				<>
 					<Button
 						size="sm"
-						variant="outline"
-						className="bg-green-100 text-green-700 hover:bg-green-200"
 						onClick={() => handleUpdate(tool._id, 'approved')}
-						disabled={isUpdating === tool._id}>
+						disabled={isUpdating === tool._id}
+						className="bg-green-600 hover:bg-green-700 text-white">
 						{isUpdating === tool._id ? (
-							<Loader2 className="h-4 w-4 animate-spin" />
+							<Loader2 className="h-3 w-3 animate-spin" />
 						) : (
 							<>
-								<Check className="h-4 w-4 mr-1" />
+								<Check className="h-3 w-3 mr-1" />
 								Approve
 							</>
 						)}
 					</Button>
 					<Button
 						size="sm"
-						variant="outline"
+						variant="destructive"
 						onClick={() => handleUpdate(tool._id, 'rejected')}
-						disabled={isUpdating === tool._id}>
-						<X className="h-4 w-4 mr-1" />
+						disabled={isUpdating === tool._id}
+						className="bg-red-600 hover:bg-red-700">
+						<X className="h-3 w-3 mr-1" />
 						Reject
 					</Button>
 				</>
@@ -266,10 +271,15 @@ export function AdminDashboardPage() {
 			{tool.status === 'approved' && (
 				<Button
 					size="sm"
-					variant="outline"
+					variant={tool.isFeatured ? 'destructive' : 'secondary'}
 					onClick={() => handleFeatureToggle(tool)}
-					disabled={isUpdating === tool._id}>
-					<Rocket className="h-4 w-4 mr-1" />
+					disabled={isUpdating === tool._id}
+					className={
+						tool.isFeatured
+							? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+							: 'bg-gray-700 hover:bg-gray-600 text-white'
+					}>
+					<Crown className="h-3 w-3 mr-1" />
 					{tool.isFeatured ? 'Unfeature' : 'Feature'}
 				</Button>
 			)}
@@ -277,137 +287,188 @@ export function AdminDashboardPage() {
 				size="sm"
 				variant="destructive"
 				onClick={() => handleDeleteClick(tool)}
-				disabled={isUpdating === tool._id}>
-				<Trash2 className="h-4 w-4" />
+				disabled={isUpdating === tool._id}
+				className="bg-red-600/80 hover:bg-red-600">
+				<Trash2 className="h-3 w-3" />
 			</Button>
 		</div>
 	);
 
 	return (
-		<div className="flex min-h-screen w-full flex-col bg-muted/40">
-			<header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
-				<h1 className="text-xl font-semibold">Admin Dashboard</h1>
-				<Button variant="outline" onClick={logout}>
-					Logout
-				</Button>
-			</header>
-			<main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+		<div className="min-h-screen bg-gray-950 p-6">
+			<div className="max-w-7xl mx-auto space-y-8">
+				{/* Header */}
+				<motion.div
+					className="text-center space-y-4"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}>
+					<div className="flex items-center justify-center space-x-3 mb-4">
+						<div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+							<BarChart3 className="h-6 w-6 text-white" />
+						</div>
+					</div>
+					<h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
+					<p className="text-xl text-gray-400 max-w-2xl mx-auto">
+						Manage tools, users, and platform analytics
+					</p>
+				</motion.div>
+
+				{/* Stats Grid */}
+				<motion.div
+					className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.2 }}>
 					<StatCard
 						title="All Tools"
 						value={stats?.tools.all ?? '...'}
-						icon={<List className="h-4 w-4 text-muted-foreground" />}
+						icon={<List className="h-8 w-8" />}
 						filter="all"
+						color="blue"
 					/>
 					<StatCard
 						title="Approved"
 						value={stats?.tools.approved ?? '...'}
-						icon={<ThumbsUp className="h-4 w-4 text-muted-foreground" />}
+						icon={<ThumbsUp className="h-8 w-8" />}
 						filter="approved"
+						color="green"
 					/>
 					<StatCard
 						title="Pending"
 						value={stats?.tools.pending ?? '...'}
-						icon={<Loader2 className="h-4 w-4 text-muted-foreground" />}
+						icon={<Rocket className="h-8 w-8" />}
 						filter="pending"
+						color="yellow"
 					/>
 					<StatCard
-						title="Rejected"
-						value={stats?.tools.rejected ?? '...'}
-						icon={<X className="h-4 w-4 text-muted-foreground" />}
-						filter="rejected"
+						title="Total Users"
+						value={stats?.users.total ?? '...'}
+						icon={<Users className="h-8 w-8" />}
+						filter="all"
+						color="purple"
 					/>
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Total Users</CardTitle>
-							<Users className="h-4 w-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">
-								{stats?.users.total ?? '...'}
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+				</motion.div>
 
-				<Card>
-					<CardHeader>
-						<CardTitle className="capitalize">{activeFilter} Tools</CardTitle>
-						<CardDescription>
-							Review and manage all tool submissions.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{isLoading ? (
-							<div className="flex justify-center items-center p-8">
-								<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-							</div>
-						) : (
-							<div className="border rounded-md overflow-x-auto">
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead className="w-[40%]">Tool</TableHead>
-											<TableHead>Submitted By</TableHead>
-											<TableHead>Status</TableHead>
-											<TableHead className="text-right">Actions</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{displayedTools.length > 0 ? (
-											displayedTools.map((tool, index) => (
-												<TableRow key={tool._id}>
-													<TableCell>
-														<motion.div
-															animate={index === 0 ? controls : undefined}
-															className="flex flex-col">
-															<a
-																href={tool.websiteUrl}
-																target="_blank"
-																rel="noopener noreferrer"
-																className="font-medium hover:underline">
-																{tool.name}
-															</a>
-															<div className="text-sm text-muted-foreground">
-																{tool.tagline}
+				{/* Tools Management */}
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.4 }}>
+					<Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800/50">
+						<CardHeader className="border-b border-gray-800/50">
+							<CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+								<Activity className="h-6 w-6 text-blue-400" />
+								<span>
+									{activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}{' '}
+									Tools
+								</span>
+							</CardTitle>
+							<CardDescription className="text-gray-400">
+								Review and manage all tool submissions
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="p-0">
+							{isLoading ? (
+								<div className="flex items-center justify-center py-16">
+									<div className="flex items-center space-x-3 text-gray-400">
+										<div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+										<span>Loading tools...</span>
+									</div>
+								</div>
+							) : (
+								<div className="overflow-x-auto">
+									<Table>
+										<TableHeader>
+											<TableRow className="border-gray-800/50 hover:bg-gray-800/30">
+												<TableHead className="text-gray-300">Tool</TableHead>
+												<TableHead className="text-gray-300">
+													Submitted By
+												</TableHead>
+												<TableHead className="text-gray-300">Status</TableHead>
+												<TableHead className="text-gray-300">Actions</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{displayedTools.length > 0 ? (
+												displayedTools.map((tool, index) => (
+													<motion.tr
+														key={tool._id}
+														initial={{ opacity: 0, y: 10 }}
+														animate={{ opacity: 1, y: 0 }}
+														transition={{ delay: index * 0.05 }}
+														className="border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+														<TableCell className="font-medium">
+															<div className="space-y-1">
+																<div className="flex items-center space-x-3">
+																	<img
+																		src={
+																			tool.logoUrl ||
+																			`https://placehold.co/40x40/374151/9CA3AF?text=${tool.name.charAt(
+																				0
+																			)}`
+																		}
+																		alt={tool.name}
+																		className="w-10 h-10 rounded-lg object-cover"
+																	/>
+																	<div>
+																		<p className="text-white font-semibold">
+																			{tool.name}
+																		</p>
+																		<p className="text-gray-400 text-sm">
+																			{tool.tagline}
+																		</p>
+																	</div>
+																</div>
 															</div>
-														</motion.div>
-													</TableCell>
-													<TableCell>
-														{tool.submittedBy?.companyName ?? 'N/A'}
-													</TableCell>
-													<TableCell>
-														<span
-															className={`px-2 py-1 text-xs rounded-full ${
-																tool.status === 'approved'
-																	? 'bg-green-100 text-green-800'
-																	: tool.status === 'pending'
-																	? 'bg-yellow-100 text-yellow-800'
-																	: 'bg-red-100 text-red-800'
-															}`}>
-															{tool.status} {tool.isFeatured && '(Featured)'}
-														</span>
-													</TableCell>
-													<TableCell className="min-w-[250px]">
-														<ToolActions tool={tool} />
+														</TableCell>
+														<TableCell className="text-gray-300">
+															{tool.submittedBy?.companyName ?? 'N/A'}
+														</TableCell>
+														<TableCell>
+															<div className="flex items-center space-x-2">
+																<span
+																	className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+																		tool.status === 'approved'
+																			? 'bg-green-500/20 text-green-400'
+																			: tool.status === 'pending'
+																			? 'bg-yellow-500/20 text-yellow-400'
+																			: 'bg-red-500/20 text-red-400'
+																	}`}>
+																	{tool.status}
+																</span>
+																{tool.isFeatured && (
+																	<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
+																		<Star className="h-3 w-3 mr-1" />
+																		Featured
+																	</span>
+																)}
+															</div>
+														</TableCell>
+														<TableCell>
+															<ToolActions tool={tool} />
+														</TableCell>
+													</motion.tr>
+												))
+											) : (
+												<TableRow>
+													<TableCell
+														colSpan={4}
+														className="text-center py-12 text-gray-400">
+														No tools found for this filter.
 													</TableCell>
 												</TableRow>
-											))
-										) : (
-											<TableRow>
-												<TableCell colSpan={4} className="text-center h-24">
-													No tools found for this filter.
-												</TableCell>
-											</TableRow>
-										)}
-									</TableBody>
-								</Table>
-							</div>
-						)}
-					</CardContent>
-				</Card>
-			</main>
-			<ConfirmDialog />
+											)}
+										</TableBody>
+									</Table>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				</motion.div>
+
+				<ConfirmDialog />
+			</div>
 		</div>
 	);
 }

@@ -20,11 +20,13 @@ import {
 } from '@/store/slice/toolsSlice';
 import { isAxiosError } from 'axios';
 import {
+	Camera,
 	Image as ImageIcon,
 	Loader2,
 	Pencil,
 	Save,
 	Upload,
+	X,
 } from 'lucide-react';
 import type React from 'react';
 import { useRef } from 'react';
@@ -122,9 +124,7 @@ export const EditableToolCardModal = ({
 			}
 
 			const updatedTool = await updateTool(tool._id, updateData);
-
 			dispatch(updateToolInStore(updatedTool));
-
 			toast.success('Tool updated successfully!');
 			onUpdate();
 			onClose();
@@ -138,138 +138,226 @@ export const EditableToolCardModal = ({
 
 	return (
 		<Dialog open={true} onOpenChange={onClose}>
-			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<div className="flex items-center justify-between">
-						<DialogTitle>
-							{isEditing ? 'Edit Tool' : 'Tool Details'}
-						</DialogTitle>
+						<div className="space-y-1">
+							<DialogTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+								{isEditing ? (
+									<>
+										<Pencil className="h-6 w-6 text-blue-400" />
+										<span>Edit Tool</span>
+									</>
+								) : (
+									<>
+										<ImageIcon className="h-6 w-6 text-green-400" />
+										<span>Tool Details</span>
+									</>
+								)}
+							</DialogTitle>
+							<DialogDescription className="text-gray-400">
+								{isEditing
+									? 'Update your tool details below.'
+									: 'View the details of your tool submission.'}
+							</DialogDescription>
+						</div>
 						<Button
-							variant="ghost"
+							variant="outline"
 							size="sm"
 							onClick={handleEditToggle}
-							disabled={isEditModalLoading}>
-							<Pencil className="h-4 w-4 mr-2" />
-							{isEditing ? 'Cancel' : 'Edit'}
+							className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+							{isEditing ? (
+								<>
+									<X className="mr-2 h-4 w-4" />
+									Cancel
+								</>
+							) : (
+								<>
+									<Pencil className="mr-2 h-4 w-4" />
+									Edit
+								</>
+							)}
 						</Button>
 					</div>
-					<DialogDescription>
-						{isEditing
-							? 'Update your tool details below.'
-							: 'View the details of your tool submission.'}
-					</DialogDescription>
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-6">
-					<div className="space-y-4">
-						<Label>Tool Logo</Label>
-						<div className="flex items-center space-x-4">
-							{logoPreview ? (
-								<img
-									src={logoPreview}
-									alt="Tool logo"
-									className="h-16 w-16 rounded-lg object-cover"
-								/>
-							) : (
-								<div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
-									<ImageIcon className="h-8 w-8 text-muted-foreground" />
+					{/* Tool Logo Section */}
+					<div className="space-y-3">
+						<Label
+							htmlFor="logo"
+							className="text-sm font-semibold text-gray-300">
+							Tool Logo
+						</Label>
+						<div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+							<div className="relative group">
+								{logoPreview ? (
+									<div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-800 ring-2 ring-gray-600">
+										<img
+											src={logoPreview}
+											alt="Tool logo preview"
+											className="h-full w-full object-cover"
+										/>
+									</div>
+								) : (
+									<div className="w-24 h-24 rounded-xl bg-gray-800 border-2 border-dashed border-gray-600 flex items-center justify-center">
+										<Camera className="h-8 w-8 text-gray-500" />
+									</div>
+								)}
+								{isEditing && (
+									<div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+										<Camera className="h-6 w-6 text-white" />
+									</div>
+								)}
+							</div>
+							{isEditing && (
+								<div className="space-y-2">
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() => fileInputRef.current?.click()}
+										disabled={isEditModalLoading}
+										className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
+										<Upload className="mr-2 h-4 w-4" />
+										Change Logo
+									</Button>
+									<p className="text-xs text-gray-500">
+										Recommended: 256x256px, PNG or JPG
+									</p>
 								</div>
 							)}
-							{isEditing && (
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => fileInputRef.current?.click()}
-									disabled={isEditModalLoading}>
-									<Upload className="h-4 w-4 mr-2" />
-									Change Logo
-								</Button>
-							)}
-							<input
-								ref={fileInputRef}
-								type="file"
-								accept="image/*"
-								onChange={handleFileChange}
-								className="hidden"
-							/>
 						</div>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/*"
+							onChange={handleFileChange}
+							className="hidden"
+						/>
 					</div>
 
+					{/* Tool Name */}
 					<div className="space-y-2">
-						<Label htmlFor="name">Tool Name</Label>
+						<Label
+							htmlFor="name"
+							className="text-sm font-semibold text-gray-300">
+							Tool Name
+						</Label>
 						{isEditing ? (
 							<Input
 								id="name"
 								value={formData.name}
 								onChange={handleInputChange}
+								placeholder="Enter tool name"
+								className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
 								disabled={isEditModalLoading}
 								required
 							/>
 						) : (
-							<p className="text-sm text-muted-foreground">{tool.name}</p>
+							<div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+								<span className="text-white font-medium">{tool.name}</span>
+							</div>
 						)}
 					</div>
 
+					{/* Tagline */}
 					<div className="space-y-2">
-						<Label htmlFor="tagline">Tagline</Label>
+						<Label
+							htmlFor="tagline"
+							className="text-sm font-semibold text-gray-300">
+							Tagline
+						</Label>
 						{isEditing ? (
 							<Input
 								id="tagline"
 								value={formData.tagline}
 								onChange={handleInputChange}
+								placeholder="Enter a compelling tagline"
+								className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
 								disabled={isEditModalLoading}
 								required
 							/>
 						) : (
-							<p className="text-sm text-muted-foreground">{tool.tagline}</p>
+							<div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+								<span className="text-gray-300">{tool.tagline}</span>
+							</div>
 						)}
 					</div>
 
+					{/* Description */}
 					<div className="space-y-2">
-						<Label htmlFor="description">Description</Label>
+						<Label
+							htmlFor="description"
+							className="text-sm font-semibold text-gray-300">
+							Description
+						</Label>
 						{isEditing ? (
 							<Textarea
 								id="description"
-								rows={4}
 								value={formData.description}
 								onChange={handleInputChange}
+								placeholder="Describe your tool's features and benefits"
+								rows={4}
+								className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 resize-none"
 								disabled={isEditModalLoading}
 								required
 							/>
 						) : (
-							<p className="text-sm text-muted-foreground">
-								{tool.description}
-							</p>
+							<div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700 max-h-32 overflow-y-auto">
+								<span className="text-gray-300 leading-relaxed">
+									{tool.description}
+								</span>
+							</div>
 						)}
 					</div>
 
+					{/* Website URL */}
 					<div className="space-y-2">
-						<Label htmlFor="websiteUrl">Website URL</Label>
+						<Label
+							htmlFor="websiteUrl"
+							className="text-sm font-semibold text-gray-300">
+							Website URL
+						</Label>
 						{isEditing ? (
 							<Input
 								id="websiteUrl"
-								type="url"
 								value={formData.websiteUrl}
 								onChange={handleInputChange}
+								placeholder="https://yourtool.com"
+								type="url"
+								className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
 								disabled={isEditModalLoading}
 								required
 							/>
 						) : (
-							<p className="text-sm text-muted-foreground">{tool.websiteUrl}</p>
+							<div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+								<a
+									href={tool.websiteUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-blue-400 hover:text-blue-300 underline break-all">
+									{tool.websiteUrl}
+								</a>
+							</div>
 						)}
 					</div>
 
+					{/* Action Buttons */}
 					{isEditing && (
-						<DialogFooter>
+						<DialogFooter className="flex flex-col sm:flex-row gap-3">
 							<Button
 								type="button"
 								variant="outline"
 								onClick={handleEditToggle}
-								disabled={isEditModalLoading}>
+								disabled={isEditModalLoading}
+								className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">
 								Cancel
 							</Button>
-							<Button type="submit" disabled={isEditModalLoading}>
+							<Button
+								type="submit"
+								disabled={isEditModalLoading}
+								className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
 								{isEditModalLoading ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
