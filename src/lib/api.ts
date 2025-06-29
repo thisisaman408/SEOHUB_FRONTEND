@@ -1,9 +1,13 @@
 import axios from 'axios';
+import { signInWithPopup, signOut } from 'firebase/auth';
+import { auth, googleProvider } from './firebase';
 import {
     type AdminStats,
     type Comment,
     type CommentReportData,
     type CommentVoteResponse,
+    type GoogleAuthData,
+    type GoogleAuthResponse,
     type LoginCredentials,
     type RateToolResponse,
     type SearchFilters,
@@ -13,9 +17,8 @@ import {
     type ToolAnalytics,
     type ToolMedia,
     type User,
-    type ViewTrackingData
+    type ViewTrackingData,
 } from './types';
-
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     headers: {
@@ -384,6 +387,50 @@ export const trackClick = async (
 ): Promise<{ message: string }> => {
 	const { data } = await api.post(`/tools/${toolId}/click`, clickData);
 	return data;
+};
+
+
+
+export const initiateGoogleAuth = async (): Promise<GoogleAuthData> => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+    
+    return {
+      idToken,
+      email: result.user.email!,
+      name: result.user.displayName!,
+      profilePicture: result.user.photoURL || undefined,
+    };
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    throw new Error('Google authentication failed');
+  }
+};
+
+export const verifyGoogleToken = async (googleAuthData: GoogleAuthData): Promise<GoogleAuthResponse> => {
+  const { data } = await api.post('/auth/google/verify', googleAuthData);
+  return data;
+};
+
+export const createGoogleAccount = async (accountData: {
+  tempToken: string;
+  companyName: string;
+}): Promise<User> => {
+  const { data } = await api.post('/auth/google/create-account', accountData);
+  if (data.token) {
+    localStorage.setItem('token', data.token);
+  }
+  return data;
+};
+
+export const logoutGoogle = async (): Promise<void> => {
+  try {
+    await signOut(auth);
+    logout(); 
+  } catch (error) {
+    console.error('Google logout error:', error);
+  }
 };
 
 export default api;

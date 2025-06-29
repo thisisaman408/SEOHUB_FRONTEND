@@ -1,5 +1,6 @@
 import { getAllTools, getToolBySlug, rateTool, searchToolsWithAI } from '@/lib/api';
 import { type EditToolFormData, type SearchFilters, type SearchResponse, type Tool } from '@/lib/types';
+import type { RootState } from '@/store';
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface EditModalData {
@@ -91,11 +92,39 @@ export const performSearch = createAsyncThunk(
 
 export const submitRating = createAsyncThunk(
   'tools/submitRating',
-  async ({ toolId, rating }: { toolId: string; rating: number }) => {
-    const response = await rateTool(toolId, rating);
-    return { toolId, ...response };
+  async ({ toolId, rating }: { toolId: string; rating: number }, {getState, rejectWithValue }) => {
+    try {
+      // Get current tool state for rollback if needed
+      const state = getState() as RootState;
+      const currentTool = state.tools.allTools.find(t => t._id === toolId) ||
+                         state.tools.searchResults.find(t => t._id === toolId) ||
+                         state.tools.featuredTools.find(t => t._id === toolId) ||
+                         state.tools.currentTool;
+
+      if (!currentTool) {
+        return rejectWithValue('Tool not found');
+      }
+
+      const response = await rateTool(toolId, rating);
+      return { 
+        toolId, 
+        averageRating: response.averageRating,
+        numberOfRatings: response.numberOfRatings,
+        userRating: response.userRating
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error && 'response' in error && 
+        typeof error.response === 'object' && error.response !== null &&
+        'data' in error.response && typeof error.response.data === 'object' &&
+        error.response.data !== null && 'message' in error.response.data &&
+        typeof error.response.data.message === 'string'
+        ? error.response.data.message 
+        : 'Failed to submit rating';
+      return rejectWithValue(errorMessage);
+    }
   }
 );
+
 
 const toolsSlice = createSlice({
   name: 'tools',
@@ -123,6 +152,22 @@ const toolsSlice = createSlice({
         state.allTools[toolIndex].numberOfRatings = numberOfRatings;
       }
 
+      const updateToolInArray = (tools: Tool[], toolId: string) => {
+      const index = tools.findIndex(tool => tool._id === toolId);
+      if (index !== -1) {
+          tools[index] = {
+            ...tools[index],
+            averageRating: Number(averageRating.toFixed(1)),
+            numberOfRatings
+          };
+          return true;
+        }
+        return false;
+      };
+
+      updateToolInArray(state.allTools, toolId);
+      updateToolInArray(state.searchResults, toolId);
+      updateToolInArray(state.featuredTools, toolId);
       const searchIndex = state.searchResults.findIndex(tool => tool._id === toolId);
       if (searchIndex !== -1) {
         state.searchResults[searchIndex].averageRating = averageRating;
@@ -135,11 +180,16 @@ const toolsSlice = createSlice({
         state.featuredTools[featuredIndex].numberOfRatings = numberOfRatings;
       }
 
-      if (state.currentTool && state.currentTool._id === toolId) {
-        state.currentTool.averageRating = averageRating;
-        state.currentTool.numberOfRatings = numberOfRatings;
-      }
-    },
+       if (state.currentTool && state.currentTool._id === toolId) {
+        state.currentTool = {
+          ...state.currentTool,
+          averageRating: Number(averageRating.toFixed(1)),
+          numberOfRatings
+    };
+  }
+  },
+
+
     setEditModalData: (state, action: PayloadAction<EditModalData>) => {
       state.editModalData = action.payload;
     },
@@ -194,7 +244,14 @@ const toolsSlice = createSlice({
       })
       .addCase(fetchToolBySlug.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentTool = action.payload;
+        const existingTool = state.currentTool;
+        const newTool = action.payload;
+        if (existingTool && existingTool._id === newTool._id) 
+        {
+            newTool.averageRating = existingTool.averageRating || newTool.averageRating;
+            newTool.numberOfRatings = existingTool.numberOfRatings || newTool.numberOfRatings;
+        }
+          state.currentTool = action.payload;
       })
       .addCase(fetchToolBySlug.rejected, (state, action) => {
         state.isLoading = false;
@@ -215,6 +272,10 @@ const toolsSlice = createSlice({
         state.isSearching = false;
         state.error = action.error.message || 'Search failed';
       })
+
+      .addCase(submitRating.rejected, (_, action) => {
+        console.error('Rating submission failed:', action.payload);
+        })
       .addCase(submitRating.fulfilled, (state, action) => {
         const { toolId, averageRating, numberOfRatings } = action.payload;
         toolsSlice.caseReducers.updateToolRating(state, {
@@ -222,6 +283,7 @@ const toolsSlice = createSlice({
           payload: { toolId, averageRating, numberOfRatings }
         });
       });
+      
   },
 });
 

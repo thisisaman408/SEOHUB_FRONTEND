@@ -25,18 +25,11 @@ import {
 } from '@/store/slice/authSlice';
 import { isAxiosError } from 'axios';
 import { motion } from 'framer-motion';
-import {
-	ArrowRight,
-	Chrome,
-	Eye,
-	EyeOff,
-	Lock,
-	Mail,
-	Sparkles,
-} from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Lock, Mail, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
+import { GoogleAccountCreationModal } from './GoogleAccountCreationModal';
+import { GoogleAuthButton } from './GoogleAuthButton';
 interface LoginPageProps {
 	isOpen: boolean;
 	onShowSignup: () => void;
@@ -101,7 +94,39 @@ export function LoginPage({
 			dispatch(loginFailure(message));
 		}
 	};
+	// Google Auth Functions and states
 
+	const [showGoogleAccountCreation, setShowGoogleAccountCreation] =
+		useState(false);
+	const [googleAccountData, setGoogleAccountData] = useState<{
+		tempToken: string;
+		email: string;
+		name: string;
+		profilePicture?: string;
+	} | null>(null);
+
+	// Add these handlers
+	const handleGoogleSuccess = (userData: User) => {
+		onLoginSuccess(userData);
+		onClose();
+	};
+
+	const handleGoogleNeedsAccount = (data: {
+		tempToken: string;
+		email: string;
+		name: string;
+		profilePicture?: string;
+	}) => {
+		setGoogleAccountData(data);
+		setShowGoogleAccountCreation(true);
+	};
+
+	const handleGoogleAccountCreated = (userData: User) => {
+		setShowGoogleAccountCreation(false);
+		setGoogleAccountData(null);
+		onLoginSuccess(userData);
+		onClose();
+	};
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
 			<DialogOverlay className="bg-black/80 backdrop-blur-sm" />
@@ -134,13 +159,12 @@ export function LoginPage({
 
 					<CardContent className="space-y-6 pb-8">
 						<div>
-							<Button
-								variant="outline"
-								className="w-full bg-gray-800/50 border-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white py-3 rounded-xl transition-all duration-200"
-								disabled={isLoading}>
-								<Chrome className="mr-3 h-5 w-5" />
-								Continue with Google
-							</Button>
+							<GoogleAuthButton
+								onGoogleSuccess={handleGoogleSuccess}
+								onNeedsAccountCreation={handleGoogleNeedsAccount}
+								disabled={isLoading}
+								variant="login"
+							/>
 						</div>
 
 						<div className="relative">
@@ -153,6 +177,20 @@ export function LoginPage({
 								</span>
 							</div>
 						</div>
+						{googleAccountData && (
+							<GoogleAccountCreationModal
+								isOpen={showGoogleAccountCreation}
+								onClose={() => {
+									setShowGoogleAccountCreation(false);
+									setGoogleAccountData(null);
+								}}
+								onSuccess={handleGoogleAccountCreated}
+								tempToken={googleAccountData.tempToken}
+								email={googleAccountData.email}
+								name={googleAccountData.name}
+								profilePicture={googleAccountData.profilePicture}
+							/>
+						)}
 
 						<form onSubmit={handleLogin} className="space-y-5">
 							<div className="space-y-2">
@@ -168,6 +206,7 @@ export function LoginPage({
 										type="email"
 										value={credentials.email}
 										onChange={handleChange}
+										autoComplete="email"
 										placeholder="Enter your email"
 										className="pl-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500/20 py-3 rounded-xl"
 										disabled={isLoading}

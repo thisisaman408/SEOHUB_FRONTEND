@@ -24,7 +24,7 @@ const initialState: AuthState = {
 	isUpdatingProfile: false,
 };
 
-// Add profile update thunk
+
 export const updateProfile = createAsyncThunk(
 	'auth/updateProfile',
 	async (formData: FormData) => {

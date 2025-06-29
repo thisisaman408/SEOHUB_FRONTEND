@@ -658,3 +658,21 @@ export interface SemanticSearchResult {
 export type SearchIntent = EnhancedQuery['intent'];
 export type SearchSortOption = SearchFilters['sortBy'];
 export type ToolCategory = 'ai' | 'seo' | 'content' | 'design' | 'analytics' | 'social' | 'automation' | 'productivity' | 'ecommerce' | 'other';
+
+
+
+
+//=======================Google==================
+
+export interface GoogleAuthData {
+  idToken: string;
+  email: string;
+  name: string;
+  profilePicture?: string;
+}
+
+export interface GoogleAuthResponse {
+  user?: User;
+  needsAccountCreation: boolean;
+  tempToken?: string;
+}

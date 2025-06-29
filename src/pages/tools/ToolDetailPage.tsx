@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { trackView } from '@/lib/api';
 import { type ToolMedia } from '@/lib/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchToolBySlug, updateToolRating } from '@/store/slice/toolsSlice';
+import { fetchToolBySlug } from '@/store/slice/toolsSlice';
 import { motion } from 'framer-motion';
 import {
 	ArrowLeft,
@@ -122,33 +122,33 @@ export function ToolDetailPage() {
 		setIsLightboxOpen(true);
 	}, []);
 
-	const handleToolRatingUpdate = useCallback(
-		async (
-			toolId: string,
-			newAverageRating: number,
-			newNumberOfRatings: number
-		) => {
-			try {
-				dispatch(
-					updateToolRating({
-						toolId,
-						averageRating: newAverageRating,
-						numberOfRatings: newNumberOfRatings,
-					})
-				);
-				const ratingData = {
-					toolId,
-					averageRating: newAverageRating,
-					numberOfRatings: newNumberOfRatings,
-					timestamp: Date.now(),
-				};
-				localStorage.setItem(`rating-${toolId}`, JSON.stringify(ratingData));
-			} catch (error) {
-				console.error('Failed to update rating:', error);
-			}
-		},
-		[dispatch]
-	);
+	// const handleToolRatingUpdate = useCallback(
+	// 	async (
+	// 		toolId: string,
+	// 		newAverageRating: number,
+	// 		newNumberOfRatings: number
+	// 	) => {
+	// 		try {
+	// 			// dispatch(
+	// 			// 	updateToolRating({
+	// 			// 		toolId,
+	// 			// 		averageRating: newAverageRating,
+	// 			// 		numberOfRatings: newNumberOfRatings,
+	// 			// 	})
+	// 			// );
+	// 			const ratingData = {
+	// 				toolId,
+	// 				averageRating: newAverageRating,
+	// 				numberOfRatings: newNumberOfRatings,
+	// 				timestamp: Date.now(),
+	// 			};
+	// 			localStorage.setItem(`rating-${toolId}`, JSON.stringify(ratingData));
+	// 		} catch (error) {
+	// 			console.error('Failed to update rating:', error);
+	// 		}
+	// 	},
+	// 	[]
+	// );
 
 	const handleTabChange = (newTab: string) => {
 		setActiveTab(newTab);
@@ -310,13 +310,7 @@ export function ToolDetailPage() {
 														views
 													</span>
 												</div>
-												<StarRating
-													toolId={tool._id}
-													averageRating={tool.averageRating}
-													numberOfRatings={tool.numberOfRatings}
-													onRatingUpdate={handleToolRatingUpdate}
-													size="md"
-												/>
+												<StarRating toolId={tool._id} size="md" />
 											</div>
 										</div>
 									</div>

@@ -1,11 +1,9 @@
-// src/components/tools/ToolPreviewCard.tsx
-
 import { StarRating } from '@/components/shared/StarRating';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type Tool } from '@/lib/types';
-import { useAppDispatch } from '@/store/hooks';
-import { updateToolRating } from '@/store/slice/toolsSlice';
+// import { useAppDispatch } from '@/store/hooks';
+// import { updateToolRating } from '@/store/slice/toolsSlice';
 import { motion } from 'framer-motion';
 import {
 	ArrowRight,
@@ -31,25 +29,25 @@ interface HoverPreviewCardProps {
 export function HoverPreviewCard({
 	tool,
 	onClick,
-	onToolRatingUpdate,
-}: HoverPreviewCardProps) {
-	const dispatch = useAppDispatch();
+}: // onToolRatingUpdate,
+HoverPreviewCardProps) {
+	// const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
-	const handleToolRatingUpdate = (
-		toolId: string,
-		newAverageRating: number,
-		newNumberOfRatings: number
-	) => {
-		dispatch(
-			updateToolRating({
-				toolId,
-				averageRating: newAverageRating,
-				numberOfRatings: newNumberOfRatings,
-			})
-		);
-		onToolRatingUpdate(toolId, newAverageRating, newNumberOfRatings);
-	};
+	// const handleToolRatingUpdate = (
+	// 	toolId: string,
+	// 	newAverageRating: number,
+	// 	newNumberOfRatings: number
+	// ) => {
+	// 	// dispatch(
+	// 	// 	updateToolRating({
+	// 	// 		toolId,
+	// 	// 		averageRating: newAverageRating,
+	// 	// 		numberOfRatings: newNumberOfRatings,
+	// 	// 	})
+	// 	// );
+	// 	onToolRatingUpdate(toolId, newAverageRating, newNumberOfRatings);
+	// };
 
 	const handleClick = () => {
 		navigate(`/tool/${tool.slug || tool._id}`);
@@ -105,13 +103,7 @@ export function HoverPreviewCard({
 					</div>
 				</div>
 				<div className="mb-4">
-					<StarRating
-						averageRating={tool.averageRating}
-						numberOfRatings={tool.numberOfRatings}
-						toolId={tool._id}
-						onRatingUpdate={handleToolRatingUpdate}
-						size="sm"
-					/>
+					<StarRating toolId={tool._id} size="sm" />
 				</div>
 				<div className="grid grid-cols-2 gap-4 mb-4">
 					<div className="text-center p-3 bg-gray-700/50 rounded-lg">

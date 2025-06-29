@@ -1,5 +1,3 @@
-// src/components/tools/ToolGridCard.tsx
-
 import { StarRating } from '@/components/shared/StarRating';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,8 +8,8 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { type Tool } from '@/lib/types';
-import { useAppDispatch } from '@/store/hooks';
-import { updateToolRating } from '@/store/slice/toolsSlice';
+// import { useAppDispatch } from '@/store/hooks';
+// import { updateToolRating } from '@/store/slice/toolsSlice';
 import { motion } from 'framer-motion';
 import {
 	ArrowUpRight,
@@ -35,25 +33,25 @@ interface GridToolCardProps {
 export function GridToolCard({
 	tool,
 	onCardClick,
-	onToolRatingUpdate,
-}: GridToolCardProps) {
-	const dispatch = useAppDispatch();
+}: // onToolRatingUpdate,
+GridToolCardProps) {
+	// const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
-	const handleToolRatingUpdate = (
-		toolId: string,
-		newAverageRating: number,
-		newNumberOfRatings: number
-	) => {
-		dispatch(
-			updateToolRating({
-				toolId,
-				averageRating: newAverageRating,
-				numberOfRatings: newNumberOfRatings,
-			})
-		);
-		onToolRatingUpdate(toolId, newAverageRating, newNumberOfRatings);
-	};
+	// const handleToolRatingUpdate = (
+	// 	toolId: string,
+	// 	newAverageRating: number,
+	// 	newNumberOfRatings: number
+	// ) => {
+	// 	// dispatch(
+	// 	// 	updateToolRating({
+	// 	// 		toolId,
+	// 	// 		averageRating: newAverageRating,
+	// 	// 		numberOfRatings: newNumberOfRatings,
+	// 	// 	})
+	// 	// );
+	// 	onToolRatingUpdate(toolId, newAverageRating, newNumberOfRatings);
+	// };
 
 	const handleCardClick = () => {
 		navigate(`/tool/${tool.slug || tool._id}`);
@@ -75,7 +73,6 @@ export function GridToolCard({
 			<Card
 				className={`group relative h-full overflow-hidden bg-gray-800/90 backdrop-blur-sm hover:bg-gray-800 transition-all duration-300 cursor-pointer ${featuredBorderClass} hover:shadow-xl hover:shadow-blue-500/10`}
 				onClick={handleCardClick}>
-				{/* Featured Badge */}
 				{tool.isFeatured && (
 					<div className="absolute top-3 right-3 z-10">
 						<Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-xs px-2 py-1 flex items-center space-x-1">
@@ -84,11 +81,8 @@ export function GridToolCard({
 						</Badge>
 					</div>
 				)}
-
-				{/* Gradient Overlay */}
 				<div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-				{/* Image Section */}
 				<div className="relative h-32 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center p-4">
 					<div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-700 ring-2 ring-gray-600 group-hover:ring-blue-500/50 transition-all duration-300">
 						<img
@@ -101,7 +95,6 @@ export function GridToolCard({
 						/>
 					</div>
 
-					{/* Trending Indicator */}
 					{tool.analytics.weeklyViews > 0 && (
 						<div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
 							<TrendingUp className="h-2.5 w-2.5" />
@@ -110,9 +103,7 @@ export function GridToolCard({
 					)}
 				</div>
 
-				{/* Content Section */}
 				<CardContent className="p-4 space-y-3 flex-1 flex flex-col">
-					{/* Title and Description */}
 					<div className="space-y-2">
 						<CardTitle className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors duration-300 line-clamp-1">
 							{tool.name}
@@ -122,7 +113,6 @@ export function GridToolCard({
 						</CardDescription>
 					</div>
 
-					{/* Tags */}
 					<div className="flex flex-wrap gap-1">
 						{tool.tags?.slice(0, 2).map((tag) => (
 							<Badge
@@ -140,8 +130,6 @@ export function GridToolCard({
 							</Badge>
 						)}
 					</div>
-
-					{/* Stats */}
 					<div className="flex items-center justify-between text-xs text-gray-400">
 						<div className="flex items-center space-x-3">
 							<div className="flex items-center space-x-1">
@@ -161,15 +149,8 @@ export function GridToolCard({
 						)}
 					</div>
 
-					{/* Rating and Action */}
 					<div className="mt-auto space-y-3">
-						<StarRating
-							averageRating={tool.averageRating}
-							numberOfRatings={tool.numberOfRatings}
-							toolId={tool._id}
-							onRatingUpdate={handleToolRatingUpdate}
-							size="sm"
-						/>
+						<StarRating toolId={tool._id} size="sm" />
 
 						<Button
 							size="sm"
